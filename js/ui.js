@@ -25,7 +25,8 @@
     el.className = 'toast ' + (o.cls || '');
     el.innerHTML = ic(o.icon || 'akte') + '<div>' + (o.kicker ? '<div class="t-kicker">' + esc(o.kicker) + '</div>' : '') +
       '<div class="t-title">' + esc(o.title || '') + '</div>' + (o.text ? '<div class="t-text">' + esc(o.text) + '</div>' : '') + '</div>';
-    el.addEventListener('click', () => close());
+    el.addEventListener('click', () => { if (o.onClick) o.onClick(); close(); });
+    if (o.onClick) el.style.cursor = 'pointer';
     host.appendChild(el);
     while (host.children.length > 4) host.firstChild.remove();
     const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
@@ -45,12 +46,13 @@
       if (e.target === back && !opts.noClose) close();
       if (e.target.closest('.close') || e.target.closest('[data-close]')) close();
     });
-    back.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !opts.noClose) { e.stopPropagation(); close(); } });
+
     setTimeout(() => { const fb = m.querySelector('[autofocus]') || m.querySelector('button.btn') || m.querySelector('button'); if (fb) fb.focus(); }, 20);
     return { el: m, close };
   };
   UI.confirm = function (title, text, okLabel, onOk, danger) {
-    const md = UI.modal('<h2>' + esc(title) + '</h2><div>' + text + '</div><div class="modal-actions"><button class="btn" type="button" data-close>Abbrechen</button><button class="btn ' + (danger ? 'primary' : 'blue') + '" type="button" data-ok autofocus>' + esc(okLabel) + '</button></div>');
+    // Fokus bewusst auf „Abbrechen“: Die Leertaste aus Stempel-Gewohnheit soll nichts bestätigen
+    const md = UI.modal('<h2>' + esc(title) + '</h2><div>' + text + '</div><div class="modal-actions"><button class="btn" type="button" data-close autofocus>Abbrechen</button><button class="btn ' + (danger ? 'primary' : 'blue') + '" type="button" data-ok>' + esc(okLabel) + '</button></div>');
     md.el.querySelector('[data-ok]').addEventListener('click', () => { md.close(); onOk(); });
   };
 
@@ -90,6 +92,7 @@
     const view = document.body.dataset.view;
     const items = NAV.filter((n) => { const t = TABS.find((x) => x.id === n.id); return !t || tabVisible(t); });
     const cur = view === 'desk' ? 'desk' : (['amt', 'urkunden', 'stats', 'optionen'].indexOf(tab) >= 0 ? 'mehr' : tab);
+    news.desk = view !== 'desk' && !!(S.anliegen.cur || (S.korb.doc && S.korb.doc.type === 'eilt'));
     const sig = items.map((n) => n.id + (news[n.id] || (n.id === 'mehr' && (news.urkunden || news.amt)) ? '*' : '')).join(',') + cur;
     if (sig === lastSig.nav) return;
     lastSig.nav = sig;
@@ -131,7 +134,6 @@
     setT($('cntVps'), f(M.vps, { dec: 2 }));
     setT($('miniAkten'), f(S.akten));
     setT($('miniSps'), '+' + f(M.sps, { dec: 1 }) + '/s');
-    document.title = f(S.akten) + ' Akten · Amtsschimmel';
   }
   function updateSoundBtns() {
     const st = C.get().settings;
@@ -324,7 +326,7 @@
         const up = C.availableUpgrades()[0];
         if (up) g.push(['stern', 'Verbesserung „' + up.name + '“', S.akten / C.upCost(up)]);
         const gen = D.GENS.find((x) => C.genUnlocked(x) && !S.gens[x.id]);
-        if (gen) g.push([gen.id, 'Erster ' + gen.name, S.akten / C.genCost(gen.id)]);
+        if (gen) g.push([gen.id, D.erste(gen, true), S.akten / C.genCost(gen.id)]);
         if (S.dj > 0 || C.djGain() > 0 || S.totalAkten > 1e9) g.push(['dj', 'Nächstes Dienstjahr', Math.pow(S.totalAkten / C.nextDjAt(), 1 / 3)]);
         if (S.era >= 9 && !S.finale.done) g.push(['knopf', 'Der Ein-Klick-Antrag', C.portalReady().ok ? S.akten / C.projCost('portal') : 0]);
         setH(goals, g.map(([i, t, p]) => '<div class="goal">' + ic(i) + '<span style="min-width:130px">' + esc(t) + '</span><div class="bar"><i style="width:' + U.clamp(p * 100, 0, 100) + '%"></i></div><small>' + Math.floor(U.clamp(p, 0, 1) * 100) + ' %</small></div>').join('') || '<span class="muted small">Alles erreicht. Die Verwaltung ist vollendet.</span>');
@@ -335,7 +337,7 @@
   P.shop = { sig: () => 'shop', render: () => '', update: () => {} };
 
   const HELP = [
-    ['Stempeln', 'Ein Klick auf die Akte (oder die Leertaste) ist der <b>Eingangsstempel</b>: kleiner Ertrag, fünf Stempel schließen einen Vorgang ab. Ab Rom gibt es <b>Ressortstempel</b> (Tasten 1–6): Der zuständige Stempel bringt viel mehr und baut <b>Arbeitsfluss</b> auf. Der falsche erzeugt einen <b>Widerspruch</b> – er kommt wieder, braucht zwei Stempel und zahlt dafür das Dreifache.'],
+    ['Stempeln', 'Ein Klick auf die Akte (oder die Leertaste) ist der <b>Eingangsstempel</b>: kleiner Ertrag, fünf Stempel schließen einen Vorgang ab. Ab Rom gibt es <b>Ressortstempel</b> (Tasten 1–6): Der zuständige Stempel bringt viel mehr und baut <b>Arbeitsfluss</b> auf. Der falsche erzeugt einen <b>Widerspruch</b> – er kommt wieder, braucht dann zwei Stempel und kostet dich den Arbeitsfluss. Ein kleiner Bonus federt das ab, aber Sorgfalt lohnt sich immer.'],
     ['Sonderfälle', '<b>EILT</b>-Vorgänge haben eine Frist und bringen rechtzeitig erledigt einen dicken Bonus. Ab der Kaiserzeit gibt es <b>Mitzeichnungen</b>, die nacheinander drei Ressorts brauchen.'],
     ['Haushalt', 'Personal und Technik arbeiten auch ohne dich. Verbesserungen vervielfachen ihre Leistung. Mit „1 / 10 / 100 / Max“ stellst du die Kaufmenge ein.'],
     ['Gremien & Paragrafen', 'Gremien beschließen Vorschriften (§). Mit ihnen setzt du Paragrafen in Kraft. Gesparte Vorschriften steigern die Produktion und vermehren sich selbst – sparen oder ausgeben, das ist hier die Frage.'],
@@ -345,7 +347,7 @@
   ].map(([t, x]) => '<details><summary><b>' + t + '</b></summary><p>' + x + '</p></details>').join('');
 
   P.paras = {
-    sig: (S) => Object.keys(S.paras).join() + '|' + D.PARAS.filter((p) => C.paraState(p) === 'open').map((p) => p.id).join(),
+    sig: (S) => Object.keys(S.paras).join() + '|' + D.PARAS.filter((p) => C.paraState(p) === 'open').map((p) => p.id).join() + '|' + S.novelle,
     render(S) {
       let h = '<h2 class="sec">' + ic('para') + 'Paragrafen</h2>';
       h += '<div class="para-head"><div class="stat"><b id="pV"></b><span>Vorschriften</span></div><div class="stat"><b id="pVps"></b><span>pro Sekunde</span></div><div class="stat"><b id="pPark"></b><span>Parkinson-Faktor</span></div><div class="stat"><b id="pRechts"></b><span>Vorschriften-Bonus auf Produktion</span></div></div>';
@@ -359,10 +361,17 @@
         }
         h += '</div></div>';
       }
+      if (C.novelleOpen()) {
+        h += '<h3 class="sec">' + ic('para') + 'Gesetzesnovellen</h3><div class="card"><p class="small">Das Gesetzbuch ist vollständig – aber eine Verwaltung ist nie fertig. Jede Novelle steigert die Produktion in diesem Durchgang um 10 %. Bisher: <b>' + S.novelle + '</b> Novellen (×' + U.dec(Math.pow(C.NOVELLE_X, S.novelle), 2) + ').</p><button class="btn small blue" type="button" data-action="buyNovelle" id="btnNovelle"></button></div>';
+      } else if (Object.keys(S.paras).length >= 30) {
+        h += '<p class="small muted">Wenn alle 36 Paragrafen in Kraft sind, lassen sich Gesetzesnovellen beschließen.</p>';
+      }
       return h;
     },
     update(S, host) {
       const M = C.M;
+      const bn = $('btnNovelle');
+      if (bn) { const c = C.novelleCost(); setH(bn, ic('para') + f(c, { dec: 1 }) + ' – nächste Novelle'); bn.disabled = c > S.vor; }
       setT($('pV'), f(S.vor, { dec: 1 }));
       setT($('pVps'), f(M.vps, { dec: 2 }));
       setT($('pPark'), M.F.noParkinson ? 'aus' : U.mult(M.parkinson));
@@ -487,7 +496,7 @@
   };
 
   P.optionen = {
-    sig: (S) => JSON.stringify(S.settings) + Object.keys(S.perks).filter((k) => /automatik/.test(k)).join() + C.listBackups().length,
+    sig: (S) => JSON.stringify(S.settings) + Object.keys(S.perks).filter((k) => /automatik/.test(k)).join() + S.lastBackup + C.readOnly,
     render(S) {
       const st = S.settings;
       const sw = (key, label, desc) => '<div class="opt-row"><label for="sw_' + key + '">' + label + (desc ? '<br><small class="muted">' + desc + '</small>' : '') + '</label><button class="switch" id="sw_' + key + '" type="button" role="switch" aria-checked="' + !!st[key] + '" data-action="toggle" data-key="' + key + '"></button></div>';
@@ -550,9 +559,13 @@
   }
   UI.loadInfo = function (info) {
     if (info.problem === 'corrupt') UI.modal('<h2>Spielstand beschädigt</h2><p>Der gespeicherte Spielstand ließ sich nicht lesen. ' + (info.restored ? 'Er wurde aus der Sicherungskopie vom ' + esc(new Date(info.restored.t).toLocaleString('de-DE')) + ' wiederhergestellt.' : 'Es wurde ein neues Spiel begonnen.') + ' Die beschädigte Fassung ist im Browser aufbewahrt.</p><div class="modal-actions"><button class="btn primary" type="button" data-close>Verstanden</button></div>');
-    else if (info.problem === 'future') UI.modal('<h2>Neuere Spielversion</h2><p>Dieser Spielstand stammt aus einer neueren Version des Spiels. Er wurde sicher aufbewahrt und nicht überschrieben. Bitte lade die Seite neu, um die aktuelle Version zu erhalten.</p><div class="modal-actions"><button class="btn primary" type="button" data-close>Verstanden</button></div>');
+    else if (info.problem === 'future') UI.modal('<h2>Neuere Spielversion</h2><p>Dein Spielstand stammt aus einer neueren Version des Spiels. Damit er nicht überschrieben wird, ist das Speichern in dieser Sitzung abgeschaltet. Bitte lade die Seite neu (notfalls mit Strg+F5), um die aktuelle Version zu erhalten.</p><div class="modal-actions"><button class="btn primary" type="button" data-close>Verstanden</button></div>');
     else if (info.offline) offlineModal(info.offline);
     else if (info.fresh) introModal();
+  };
+  UI.offlineReport = function (r) {
+    if (document.querySelector('.modal-back')) return;
+    offlineModal(r);
   };
   function introModal() {
     UI.modal('<div style="display:flex;gap:12px;align-items:center"><span style="width:84px;flex:none">' + AS.ICONS.schimmelKopf + '</span><h2 style="margin:0">Willkommen im Amt!</h2></div>' +
@@ -573,6 +586,8 @@
       if (!r) return;
       selLb = null;
       A.reform();
+      document.body.dataset.era = C.get().era;
+      A.setEra(C.get().era);
       AS.Desk.reset();
       UI.refresh();
       UI.toast({ icon: 'reform', kicker: 'Verwaltungsreform', title: 'Leitbild: ' + D.LB[r.lb].name, text: '+' + f(r.gain) + ' Dienstjahre. ' + (r.firstVisit ? 'Neues Leitbild: +5 % Produktion für immer!' : ''), cls: 'blue' });
@@ -621,7 +636,7 @@
       A.setEra(e.era);
       document.body.dataset.era = e.era;
       AS.Desk.reset();
-      if (S.maxEra === e.era && !S.flags['eraSeen' + e.era]) { S.flags['eraSeen' + e.era] = true; A.fanfare(); eraModal(e); }
+      if (S.maxEra === e.era && !S.flags['eraSeen' + e.era] && e.old !== undefined && D.ERAS[e.old]) { S.flags['eraSeen' + e.era] = true; A.fanfare(); eraModal(e); }
       else UI.toast({ icon: 'amt', kicker: 'Neue Epoche', title: D.ERAS[e.era].name, text: D.ERAS[e.era].place + ', ' + D.ERAS[e.era].year });
     });
     U.on('ach', (a) => { A.ach(); UI.toast({ icon: 'urkunde', kicker: 'Urkunde verliehen', title: a.name, text: a.desc + ' (+1 % Produktion)', cls: 'gold' }); news.urkunden = true; });
@@ -661,7 +676,7 @@
         else UI.setTab(n);
         break;
       }
-      case 'amt': S.settings.buyAmt = el.dataset.amt === 'max' ? 'max' : Number(el.dataset.amt); renderShop(true); break;
+      case 'amt': S.settings.buyAmt = String(el.dataset.amt); renderShop(true); break;
       case 'buyUp': if (C.buyUpgrade(el.dataset.id)) renderShop(true); break;
       case 'buyAllUps': C.buyAllUpgrades(); renderShop(true); break;
       case 'upMore': upOpen = !upOpen; renderShop(true); break;
@@ -669,6 +684,7 @@
       case 'buyGrem': if (!e.target.closest('.gen-info')) C.buyGrem(el.dataset.id, buyAmt()); break;
       case 'info': e.stopPropagation(); openInfo[el.dataset.id] = !openInfo[el.dataset.id]; renderShop(true); break;
       case 'buyPara': C.buyPara(el.dataset.id); renderPanel(true); break;
+      case 'buyNovelle': C.buyNovelle(); renderPanel(true); break;
       case 'fund': C.fundProject(el.dataset.id); renderPanel(true); break;
       case 'finaleAgain': UI.finale(true); break;
       case 'altpapier': C.altpapier(); renderPanel(true); break;
@@ -752,6 +768,7 @@
   /* ---------- Schleifen ---------- */
   UI.frame = function (dt) { updateTop(); updateTicker(dt); };
   UI.slow = function () {
+    document.title = f(C.get().akten) + ' Akten · Amtsschimmel';
     renderTabs();
     renderNav();
     if (wide() || tab === 'shop') renderShop();
@@ -763,6 +780,12 @@
     document.addEventListener('click', onAction);
     document.addEventListener('keydown', (e) => {
       if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('.gen-row[data-action]')) { e.preventDefault(); onAction(e); }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Escape') return;
+      const backs = document.querySelectorAll('.modal-back');
+      const top = backs[backs.length - 1];
+      if (top && top.querySelector('.close')) { e.preventDefault(); top.querySelector('.close').click(); }
     });
     document.addEventListener('input', onInput);
     document.addEventListener('change', onInput);

@@ -18,9 +18,9 @@
   const EILT_CHANCE = 0.07, EILT_TIME = 8, GROSS_CHANCE = 0.05, FORM_CHANCE = 0.005;
   const SCHIMMEL_MIN = 150, SCHIMMEL_MAX = 330, SCHIMMEL_LIFE = 13;
   const ANL_MIN = 240, ANL_MAX = 480, ANL_WAIT = 90;
-  const DJ_DIV = 1e10, DJ_EFFECT = 0.02;
+  const DJ_DIV = 1e11, DJ_EFFECT = 0.02;
   const OFF_EFF = 0.6, OFF_CAP = 8;
-  const MUEDE = 0.15, FIRST_VISIT = 0.05;
+  const MUEDE = 0.15, FIRST_VISIT = 0.05, NOVELLE_X = 1.1, NOVELLE_BASE = 3e6, NOVELLE_GROWTH = 10;
   C.CONST = { GROWTH, GREM_GROWTH, DJ_DIV, DJ_EFFECT, RESSORT_FACTOR, FLOW_STEP, AUTO_SHARE };
 
   C.now = () => Date.now();
@@ -35,7 +35,7 @@
     return {
       v: C.VERSION, created: t, lastSave: t, gt: 0,
       akten: 0, runAkten: 0, totalAkten: 0,
-      vor: 0, runVor: 0, totalVor: 0,
+      vor: 0, runVor: 0, totalVor: 0, novelle: 0,
       gens: {}, grem: {}, ups: {}, paras: {},
       era: 0, maxEra: 0,
       korb: { doc: null, pending: [], flow: 0, lastCorrect: -99, lastManual: -99, docNo: 0, autoAcc: 0, wrongStreak: 0 },
@@ -55,7 +55,7 @@
       run: { start: t, gt: 0, clicks: 0, correct: 0, docs: 0, schimmel: 0 },
       settings: {
         sound: true, music: true, sfxVol: 0.7, musicVol: 0.4, numFmt: 'kurz', motion: 'auto',
-        autoUp: true, autoGen: true, ticker: true, buyAmt: 1, tips: true,
+        autoUp: true, autoGen: true, ticker: true, buyAmt: '1', tips: true,
       },
       flags: {}, tips: {}, lastBackup: 0,
     };
@@ -149,7 +149,7 @@
     for (const id in S.forms) { const f = D.FORM[id]; if (f) F.prodAdd += D.RARITY[f.r].bonus; }
     for (const o of D.ORDNER) if (C.isOrdnerComplete(o.id)) applyFx(F, o.fx);
     F.prodAdd += 0.01 * Object.keys(S.ach).length;
-    F.prodAdd += FIRST_VISIT * Math.max(0, Object.keys(S.visited).length - 1);
+    F.prodX *= Math.pow(1 + FIRST_VISIT, Math.max(0, Object.keys(S.visited).length - 1));
     for (const p of D.PROJECTS) if (S.projects[p.id] && S.projects[p.id].done) applyFx(F, p.fx);
     if (S.finale.done) F.prodX *= 2;
     if (S.stufe) F.prodX *= Math.pow(1 + D.STUFE.bonus, S.stufe);
@@ -176,7 +176,8 @@
     // Gremien-Bonus mit abnehmendem Ertrag: volle Wirkung für die ersten 25, danach mit der Wurzel
     const ng = C.totalGrem();
     M.gremEff = ng <= 25 ? ng : 25 + 5 * (Math.sqrt(ng) - 5);
-    M.staticG = F.prodX * (1 + F.prodAdd + F.perGrem * M.gremEff) * M.djMult * M.muede * divers;
+    M.gremMult = 1 + F.perGrem * M.gremEff;
+    M.staticG = F.prodX * (1 + F.prodAdd) * M.gremMult * M.djMult * M.muede * divers * Math.pow(NOVELLE_X, S.novelle || 0);
     M.ressorts = C.activeRessorts();
     C.dyn();
   };
@@ -216,10 +217,12 @@
     M.parkinson = F.noParkinson ? 1 : 1 + F.parkinson * Math.log10(1 + S.vor);
     M.vps = v * F.vX * M.parkinson;
     // Stempel
-    M.clickVal = (F.clickX + F.clickPct * M.sps) * clickBuff;
+    const pct = F.clickPct * M.sps;
+    M.clickVal = (1 + pct) * F.clickX * clickBuff;
     M.flowMult = 1 + FLOW_STEP * Math.floor(S.korb.flow);
-    M.stampVal = M.clickVal * RESSORT_FACTOR * F.stampX * stampBuff * M.flowMult;
-    M.autoVal = (F.clickX + F.clickPct * M.sps) * RESSORT_FACTOR * F.stampX * AUTO_SHARE;
+    M.stampBase = (F.clickX + pct) * RESSORT_FACTOR * F.stampX;
+    M.stampVal = M.stampBase * stampBuff * clickBuff * M.flowMult;
+    M.autoVal = M.stampBase * AUTO_SHARE;
   };
 
   /* ---------- Hilfen ---------- */
@@ -354,6 +357,21 @@
     return true;
   };
 
+  /** Gesetzesnovellen: nach allen Paragrafen endlos, je +10 % Produktion im Durchgang */
+  C.novelleOpen = () => D.PARAS.every((p) => S.paras[p.id]);
+  C.novelleCost = () => NOVELLE_BASE * Math.pow(NOVELLE_GROWTH, S.novelle || 0) * M.F.paraCost;
+  C.buyNovelle = function () {
+    if (!C.novelleOpen()) return false;
+    const c = C.novelleCost();
+    if (c > S.vor * (1 + 1e-12)) return false;
+    S.vor = Math.max(0, S.vor - c);
+    S.novelle = (S.novelle || 0) + 1;
+    C.recalc();
+    U.emit('para', { id: 'novelle' });
+    return true;
+  };
+  C.NOVELLE_X = NOVELLE_X;
+
   /* ---------- Eingangskorb ---------- */
   function senderFor() {
     if (S.era < 4) return { who: U.pick(D.SENDERS[S.era]), place: '' };
@@ -392,7 +410,7 @@
   C.doc = () => S.korb.doc || newDoc();
 
   function typeMult(d) {
-    if (d.type === 'wider') return 3 * M.F.widerX;
+    if (d.type === 'wider') return 0.5 * M.F.widerX;
     if (d.type === 'eilt') return S.gt <= d.deadline ? 4 * M.F.eiltX : 1;
     if (d.type === 'gross') return 4;
     return 0;
@@ -401,7 +419,8 @@
     const K = S.korb;
     let bonus = M.clickVal;
     const tm = typeMult(d);
-    if (tm > 0) bonus += M.stampVal * tm;
+    // Der Sonderbonus richtet sich nach dem letzten Stempel: Vertretung und Eingangsstempel zahlen weniger
+    if (tm > 0) bonus += (how === 'auto' ? M.autoVal : how === 'eingang' ? M.clickVal : M.stampVal) * tm;
     earn(bonus);
     S.stats.docs++; S.run.docs++;
     if (d.type === 'wider') S.stats.wider++;
@@ -470,8 +489,12 @@
     K.flow = 0;
     K.wrongStreak++;
     if (K.wrongStreak >= 10) S.flags.querulant = true;
-    const back = { r: d.r, type: 'wider', need: 2, prog: 0, title: d.title, who: d.who, place: d.place, az: d.az, due: K.docNo + 3, wrongR: r };
-    if (K.pending.length < 8) K.pending.push(back);
+    if (K.pending.length >= 8) { // Eingang voll: die Akte bleibt liegen
+      U.emit('stamp', { kind: 'wrong', gain: 0, d, r, kept: true });
+      C.dyn();
+      return 0;
+    }
+    K.pending.push({ r: d.r, type: 'wider', need: 2, prog: 0, title: d.title, who: d.who, place: d.place, az: d.az, due: K.docNo + 3, wrongR: r });
     U.emit('stamp', { kind: 'wrong', gain: 0, d, r });
     K.doc = null;
     newDoc();
@@ -534,11 +557,16 @@
     if (e.buff) {
       const b = Object.assign({ id: 's_' + e.id, name: e.name }, e.buff);
       b.s = e.buff.s * M.F.schimDur;
+      const t = U.fmtTime(b.s);
+      const dur = ' für ' + t + (t.endsWith('.') ? '' : '.');
       if (b.k === 'gen') {
         const owned = D.GENS.filter((g) => S.gens[g.id]);
         const g = U.pick(owned);
         b.gen = g.id; b.id = 's_gen_' + g.id; b.name = 'Beförderung: ' + g.plural;
-        res.text = g.plural + ' arbeiten ×' + b.x + ' für ' + Math.round(b.s) + ' Sekunden.';
+        res.text = g.plural + ' arbeiten ' + U.mult(b.x) + dur;
+      } else {
+        const what = { prod: 'Produktion ' + U.mult(b.x), click: 'Alle Stempel ' + U.mult(b.x), cost: 'Generatoren und Gremien zum halben Preis' }[b.k];
+        res.text = e.text + ' ' + what + dur;
       }
       addBuff(b);
       res.buff = b;
@@ -580,6 +608,7 @@
     const timed = (k, arr, name) => {
       const x = arr[0] >= 1 ? 1 + (arr[0] - 1) * rew : arr[0];
       addBuff({ id: 'a_' + k + '_' + U.randInt(0, 1e6), k, x, s: arr[1], name });
+      out.push({ prod: 'Produktion', click: 'Alle Stempel', stamp: 'Ressortstempel' }[k] + ' ' + U.mult(x) + ' für ' + U.fmtTime(arr[1]));
     };
     if (fx.prod) timed('prod', fx.prod, fx.prod[0] >= 1 ? 'Bürgerfreude' : 'Durchhänger');
     if (fx.click) timed('click', fx.click, 'Stempeleifer');
@@ -692,7 +721,7 @@
     let paras = {};
     if (keepAll) paras = S.paras;
     else if (keepI) for (const id in S.paras) if (D.PARA[id] && D.PARA[id].teil === 'I') paras[id] = true;
-    S.akten = 0; S.runAkten = 0; S.vor = 0; S.runVor = 0;
+    S.akten = 0; S.runAkten = 0; S.vor = 0; S.runVor = 0; S.novelle = 0;
     S.gens = {}; S.grem = {}; S.ups = {}; S.paras = paras;
     S.era = 0;
     S.korb = { doc: null, pending: [], flow: 0, lastCorrect: -99, lastManual: -99, docNo: S.korb.docNo, autoAcc: 0, wrongStreak: 0 };
@@ -876,10 +905,6 @@
   }
   C.tick = function (dt) {
     if (!S || !(dt > 0)) return;
-    if (dt > 3600) { // sehr große Lücke: wie Offline behandeln, aber ohne Abschlag
-      C.applyOffline(dt, 1);
-      return;
-    }
     while (dt > 1e-9) {
       const d = Math.min(dt, 1);
       step(d);
@@ -895,20 +920,24 @@
     const eff = effOverride || C.offlineEff();
     const t = Math.min(sec, C.offlineCapH() * 3600);
     S.buffs = [];
-    C.dyn();
-    const gain = M.spsBase * t * eff;
-    let vGain = 0;
-    if (M.vps > 0) {
-      // Parkinson: in Schritten integrieren, damit das Wachstum der Vorschriften mitzählt
-      const steps = 40, h = t / steps;
-      for (let i = 0; i < steps; i++) { C.dyn(); const v = M.vps * h * eff; S.vor += v; S.runVor += v; S.totalVor += v; vGain += v; }
+    const oldEra = S.era;
+    // In Schritten: Vorschriften wachsen (Parkinson), die Automatik kauft ein, die Vertretung stempelt mit
+    const steps = Math.max(1, Math.min(240, Math.ceil(t / 30))), h = t / steps;
+    let gain = 0, vGain = 0;
+    for (let i = 0; i < steps; i++) {
+      C.dyn();
+      let g = M.spsBase * h * eff;
+      if (M.F.auto > 0) g += M.F.auto * h * M.autoVal * eff;
+      earn(g); gain += g;
+      if (M.vps > 0) { const v = M.vps * h * eff; S.vor += v; S.runVor += v; S.totalVor += v; vGain += v; }
+      const e = Math.max(S.era, eraFor(S.runAkten));
+      if (e > S.era) { S.era = e; if (e > S.maxEra) { S.maxEra = e; S.stats.eraTimes[e] = S.stats.eraTimes[e] || Math.round(S.stats.playTime); } C.recalc(); }
+      autoBuy();
     }
-    earn(gain);
     S.stats.offlineAkten += gain;
-    const e = Math.max(S.era, eraFor(S.runAkten));
-    if (e > S.era) { S.era = e; if (e > S.maxEra) { S.maxEra = e; S.stats.eraTimes[e] = S.stats.eraTimes[e] || Math.round(S.stats.playTime); } }
     C.recalc();
     checkAchievements();
+    if (S.era > oldEra) U.emit('era', { era: S.era, old: oldEra, offline: true });
     const r = { sec, t, gain, vGain, eff, capped: sec > t };
     U.emit('offline', r);
     return r;
@@ -916,8 +945,8 @@
 
   /* ---------- Speichern & Laden ---------- */
   const MAPS = {
-    gens: ['num', D.GEN], grem: ['num', D.GREM], ups: ['true', D.UP], paras: ['true', D.PARA], perks: ['true', D.PERK],
-    forms: ['num', D.FORM], ach: ['num', D.ACHS], visited: ['num', D.LB], projects: ['obj', D.PROJ],
+    gens: ['num', D.GEN, true], grem: ['num', D.GREM, true], ups: ['true', D.UP], paras: ['true', D.PARA], perks: ['true', D.PERK],
+    forms: ['num', D.FORM, true], ach: ['num', D.ACHS], visited: ['num', D.LB], projects: ['obj', D.PROJ],
     flags: ['any', null], tips: ['any', null], 'stats.eraTimes': ['num', null],
   };
   function cleanMap(src, spec) {
@@ -926,9 +955,14 @@
     for (const k in src) {
       if (known && !known[k]) continue;
       const v = src[k];
-      if (type === 'num') { if (typeof v === 'number' && isFinite(v) && v >= 0) out[k] = v; }
+      if (type === 'num') { if (typeof v === 'number' && isFinite(v) && v >= 0 && !(spec[2] && v < 1)) out[k] = spec[2] ? Math.floor(v) : v; }
       else if (type === 'true') { if (v === true) out[k] = true; }
-      else if (type === 'obj') { if (v && typeof v === 'object' && !Array.isArray(v)) out[k] = { stage: Math.max(0, Math.floor(+v.stage || 0)), delays: Math.max(0, Math.floor(+v.delays || 0)), done: !!v.done }; }
+      else if (type === 'obj') {
+        if (v && typeof v === 'object' && !Array.isArray(v)) {
+          const p = known[k];
+          out[k] = { stage: U.clamp(Math.floor(+v.stage || 0), 0, p.stages.length - 1), delays: U.clamp(Math.floor(+v.delays || 0), 0, p.delays || 0), done: !!v.done };
+        }
+      }
       else if (type === 'any') { if (['number', 'string', 'boolean'].indexOf(typeof v) >= 0 && (typeof v !== 'number' || isFinite(v))) out[k] = v; }
     }
     return out;
@@ -977,12 +1011,20 @@
     s.buffs = s.buffs.filter((b) => b && typeof b.end === 'number' && typeof b.x === 'number' && isFinite(b.x) && ['prod', 'click', 'stamp', 'cost', 'gen'].indexOf(b.k) >= 0);
     const K = s.korb;
     if (!Array.isArray(K.pending)) K.pending = [];
-    K.pending = K.pending.filter((p) => p && typeof p.r === 'number').slice(0, 8);
-    const okDoc = (d) => d && typeof d.r === 'number' && d.r < D.RESSORTS.length && typeof d.need === 'number' && typeof d.prog === 'number' && typeof d.title === 'string';
+    K.pending = K.pending.filter((p) => p && Number.isInteger(p.r) && p.r >= 0 && p.r < D.RESSORTS.length && typeof p.title === 'string').slice(0, 8);
+    const okSeq = (q) => q === undefined || (Array.isArray(q) && q.length === 3 && q.every((x) => Number.isInteger(x) && x >= 0 && x < D.RESSORTS.length));
+    const okDoc = (d) => d && Number.isInteger(d.r) && d.r >= -1 && d.r < D.RESSORTS.length && typeof d.need === 'number' && d.need >= 1 && d.need <= 3 && typeof d.prog === 'number' && typeof d.title === 'string' && okSeq(d.seq);
     if (!okDoc(K.doc)) K.doc = null;
     if (s.anliegen.cur && !D.ANL[s.anliegen.cur]) s.anliegen.cur = null;
     if (!Array.isArray(s.anliegen.recent)) s.anliegen.recent = [];
     if (['kurz', 'lang', 'wiss'].indexOf(s.settings.numFmt) < 0) s.settings.numFmt = 'kurz';
+    s.settings.buyAmt = String(s.settings.buyAmt);
+    if (['1', '10', '100', 'max'].indexOf(s.settings.buyAmt) < 0) s.settings.buyAmt = '1';
+    s.settings.sfxVol = U.clamp(s.settings.sfxVol, 0, 1);
+    s.settings.musicVol = U.clamp(s.settings.musicVol, 0, 1);
+    if (['auto', 'voll', 'wenig'].indexOf(s.settings.motion) < 0) s.settings.motion = 'auto';
+    if (s.lastSave > C.now()) s.lastSave = C.now(); // Uhr wurde zurückgestellt
+    s.novelle = Math.floor(s.novelle);
     return s;
   }
   C.fromObject = function (obj) {
@@ -996,8 +1038,9 @@
     S.settings.numFmt = U.numFmt;
     return JSON.stringify(S);
   };
+  C.readOnly = false; // gesetzt, wenn ein neuerer Spielstand liegt oder ein anderer Tab spielt
   C.save = function () {
-    if (!C.storage || !S) return false;
+    if (!C.storage || !S || C.readOnly) return false;
     try {
       const str = C.serialize();
       C.storage.set(C.SAVE_KEY, str);
@@ -1034,6 +1077,7 @@
         const stamp = C.now();
         try { C.storage.set((e.future ? 'amtsschimmel.future.' : 'amtsschimmel.corrupt.') + stamp, raw); } catch (e2) { /* Speicher voll */ }
         info.problem = e.future ? 'future' : 'corrupt';
+        if (e.future) { C.readOnly = true; C.futureLock = true; } // einen neueren Spielstand niemals überschreiben
         // jüngstes lesbares Backup versuchen
         for (const b of C.listBackups()) {
           try { S = C.fromObject(JSON.parse(C.storage.get(b.key))); info.restored = b; info.fresh = false; break; } catch (e3) { /* nächstes */ }

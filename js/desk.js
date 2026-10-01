@@ -194,7 +194,8 @@
     } else if (kind === 'wrong') {
       imprint(D.STAMPS.wrong, { cls: 'big', color: 'rgba(60,60,70,.85)' });
       A.wrong();
-      Desk.floater('Widerspruch!', pos.x, pos.y - 30, 'bad');
+      Desk.floater(e.kept ? 'Unzuständig – Eingang voll!' : 'Widerspruch!', pos.x, pos.y - 30, 'bad');
+      if (e.kept && docEl) { docEl.classList.remove('shake'); void docEl.offsetWidth; docEl.classList.add('shake'); }
       lastFlowShown = -1;
     }
     updateDocState();
@@ -243,14 +244,20 @@
   }
 
   /* ---------- Bürgeranliegen ---------- */
-  function showAnliegen(a) {
+  function showAnliegen(a, silent) {
     const slot = $('anliegenSlot');
     const S = C.get();
     slot.innerHTML = '<div class="anliegen" role="dialog" aria-label="Bürgeranliegen">' +
       '<div class="anliegen-head">' + ic('telefon') + '<span>Am Schalter</span><span class="anl-timer"><i id="anlTimer"></i></span></div>' +
       '<div class="anliegen-text"><b>' + U.esc(a.who) + '</b> ' + U.esc(a.text) + '</div>' +
       '<div class="anliegen-opts">' + a.opts.map((o, i) => '<button class="btn opt" type="button" data-anl="' + i + '">' + U.esc(o.label) + '</button>').join('') + '</div></div>';
-    A.anliegen();
+    if (!silent) {
+      A.anliegen();
+      AS.UI.announce('Bürgeranliegen am Schalter: ' + a.who + ' ' + a.text);
+      if (document.body.dataset.view !== 'desk' && window.matchMedia('(max-width: 759px)').matches) {
+        AS.UI.toast({ icon: 'telefon', kicker: 'Am Schalter', title: 'Kundschaft wartet', text: 'Tippe auf „Schreibtisch“, um das Anliegen zu bearbeiten.', ms: 6000 });
+      }
+    }
     const until = S.anliegen.until;
     clearInterval(anlTimer);
     anlTimer = setInterval(() => {
@@ -258,7 +265,6 @@
       if (!t) { clearInterval(anlTimer); return; }
       t.style.width = U.clamp((until - C.get().gt) / 90 * 100, 0, 100) + '%';
     }, 250);
-    AS.UI.announce('Bürgeranliegen am Schalter: ' + a.who + ' ' + a.text);
   }
   function answered(r) {
     clearInterval(anlTimer);
@@ -276,7 +282,7 @@
   }
 
   /* ---------- Amtsschimmel ---------- */
-  function spawnSchimmel(e) {
+  function spawnSchimmel(e, silent) {
     removeSchimmel();
     const el = document.createElement('button');
     el.type = 'button';
@@ -298,6 +304,7 @@
     });
     $('schimmelLayer').appendChild(el);
     schEl = el;
+    if (silent) return;
     A.schimmel();
     AS.UI.announce('Der Amtsschimmel galoppiert vorbei! Schnell anklicken.');
   }
@@ -384,7 +391,9 @@
     removeSchimmel();
     const S = C.get();
     if (S.korb.doc) mountDoc(S.korb.doc, false);
-    if (S.anliegen.cur) showAnliegen(D.ANL[S.anliegen.cur]);
+    if (S.anliegen.cur) showAnliegen(D.ANL[S.anliegen.cur], true);
+    // Ein laufender Amtsschimmel bleibt fangbar (z. B. nach einem Epochenwechsel)
+    if (S.schimmel.active && S.schimmel.until > S.gt) spawnSchimmel({ life: S.schimmel.until - S.gt }, true);
     renderStamps();
     bumpTray('in'); bumpTray('out');
   };

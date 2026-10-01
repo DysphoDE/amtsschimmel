@@ -13,11 +13,11 @@
       { label: 'Formlos genehmigen', fx: { akten: 2 }, res: 'Herr Wimmer ist glücklich. Der Nachbar nicht, aber der ist nicht zuständig.' },
       { label: 'Bauvoranfrage verlangen', fx: { vor: 4 }, res: 'Drei neue Vorschriften zur Zaunhöhe sind entstanden.' },
       { label: 'An die Nachbarbehörde verweisen', fx: { chance: { p: 0.5,
-        win: { prod: [2, 90], res: 'Die Nachbarbehörde verweist zurück – mit Kuchen. Produktion ×2 für 90 Sekunden.' },
+        win: { prod: [2, 90], res: 'Die Nachbarbehörde verweist zurück – mit Kuchen.' },
         lose: { res: 'Herr Wimmer pendelt seitdem zwischen beiden Ämtern. Er wirkt zufrieden.' } } } },
     ] },
     { id: 'formform', who: 'Eine Bürgerin', text: 'fragt, wo es das Formular zur Beantragung des Formulars gibt.', opts: [
-      { label: 'Schalter 3, Zimmer 214', fx: { click: [3, 60] }, res: 'Sie findet es sogar! Alle sind motiviert: Stempel ×3 für 60 Sekunden.' },
+      { label: 'Schalter 3, Zimmer 214', fx: { click: [3, 60] }, res: 'Sie findet es sogar! Alle sind motiviert.' },
       { label: 'Eins aus der Schublade holen', fx: { form: 1 }, res: 'Ganz unten in der Schublade liegt noch etwas anderes …' },
     ] },
     { id: 'hund', who: 'Ein Mann mit Dackel', text: 'möchte seinen Hund als Katze anmelden – wegen der Hundesteuer.', opts: [
@@ -25,10 +25,10 @@
       { label: 'Gutachten beauftragen', fx: { vor: 7 }, res: 'Der Gutachter braucht drei Monate und erlässt nebenbei vierzig Vorschriften.' },
       { label: 'Den Hund miauen lassen', fx: { chance: { p: 0.3,
         win: { akten: 12, res: 'Er miaut tatsächlich! Ein Fall für die Fachpresse – und ein gewaltiger Aktenschub.' },
-        lose: { prod: [0.5, 30], res: 'Er bellt. Alle lachen, keiner arbeitet: Produktion ×0,5 für 30 Sekunden.' } } } },
+        lose: { prod: [0.5, 30], res: 'Er bellt. Alle lachen, keiner arbeitet.' } } } },
     ] },
     { id: 'kaffee', who: 'Der Förderverein „Freunde der Verwaltung“', text: 'möchte dem Amt eine Kaffeemaschine spenden.', opts: [
-      { label: 'Annehmen', fx: { prod: [3, 120] }, res: 'Die Antikorruptionsprüfung läuft noch, der Kaffee schon: Produktion ×3 für 2 Minuten.' },
+      { label: 'Annehmen', fx: { prod: [3, 120] }, res: 'Die Antikorruptionsprüfung läuft noch, der Kaffee schon.' },
       { label: 'Ablehnen – Vorteilsannahme!', fx: { vor: 10 }, res: 'Vorbildlich. Eine Vorschrift über die Annahme von Kaffeemaschinen wird erlassen. Und noch eine.' },
     ] },
     { id: 'nummer404', who: 'Die Wartemarkenanzeige', text: 'zeigt seit zwei Stunden die Nummer 404.', opts: [
@@ -36,7 +36,7 @@
       { label: 'Einfach weiter aufrufen', fx: { akten: 3 }, res: '„Nummer 404, bitte!“ – Niemand kommt. Dafür ist die Schlange plötzlich kürzer.' },
     ] },
     { id: 'schulklasse', who: 'Eine vierte Klasse', text: 'besucht die Behörde und möchte einmal richtig stempeln.', opts: [
-      { label: 'Jeder darf einmal', fx: { click: [5, 30] }, res: 'Achtundzwanzig Stempel gleichzeitig! Eingangsstempel ×5 für 30 Sekunden.' },
+      { label: 'Jeder darf einmal', fx: { click: [5, 30] }, res: 'Achtundzwanzig Stempel gleichzeitig!' },
       { label: 'Führung durchs Archiv', fx: { form: 1 }, res: 'Ein Kind zieht ein vergessenes Formular aus einem Regal.' },
     ] },
     { id: 'beschwerde', who: 'Eine Beschwerde', text: 'über die Bearbeitungsdauer von Beschwerden ist eingegangen.', opts: [
@@ -49,12 +49,12 @@
     { id: 'baum', who: 'Die Linde im Innenhof', text: 'wirft Laub auf den Parkplatz der Amtsleitung.', opts: [
       { label: 'Fällgenehmigung beantragen', fx: { vor: 5 }, res: 'Zuständig ist das eigene Amt. Es lehnt sich selbst ab und erlässt Vorschriften.' },
       { label: 'Laubbläser beschaffen', fx: { akten: 2 }, res: 'Ausschreibung, Vergabe, Lieferung: im Frühjahr. Bis dahin harkt der Amtsbote.' },
-      { label: 'Unter Denkmalschutz stellen', fx: { prod: [1.5, 300] }, res: 'Die Linde ist jetzt Kulturgut. Alle sind stolz: Produktion ×1,5 für 5 Minuten.' },
+      { label: 'Unter Denkmalschutz stellen', fx: { prod: [1.5, 300] }, res: 'Die Linde ist jetzt Kulturgut. Alle sind stolz.' },
     ] },
     { id: 'drucker', who: 'Der Drucker im Flur', text: 'meldet „PC LOAD LETTER“. Niemand weiß, was das heißt.', minEra: 5, opts: [
       { label: 'IT-Ticket schreiben', fx: { vor: 4 }, res: 'Ticket Nr. 4815162342 wurde angelegt. Priorität: niedrig.' },
       { label: 'Mit dem Fuß dagegentreten', fx: { chance: { p: 0.45,
-        win: { prod: [4, 45], res: 'Er druckt! Alle jubeln: Produktion ×4 für 45 Sekunden.' },
+        win: { prod: [4, 45], res: 'Er druckt! Alle jubeln.' },
         lose: { prod: [0.5, 20], res: 'Jetzt meldet er „Papierstau in Fach 7“. Es gibt kein Fach 7.' } } } },
     ] },
     { id: 'pferd', who: 'Ein aufgeregter Bürger', text: 'meldet ein weißes Pferd, das durch die Flure galoppiert.', opts: [
@@ -66,7 +66,7 @@
       { label: 'Zuerst Identität nachweisen lassen', fx: { vor: 5 }, res: 'Er braucht dafür ein Formular, für das er seine Identität nachweisen muss.' },
     ] },
     { id: 'seminar', who: 'Die Fortbildungsstelle', text: 'hat noch Plätze im Seminar „Effizient stempeln in zehn Schritten“.', opts: [
-      { label: 'Anmelden', fx: { stamp: [2, 300] }, res: 'Gelernt ist gelernt: Ressortstempel ×2 für 5 Minuten.' },
+      { label: 'Anmelden', fx: { stamp: [2, 300] }, res: 'Gelernt ist gelernt.' },
       { label: 'Keine Zeit, zu viel zu stempeln', fx: { akten: 2 }, res: 'Ironischerweise genau das richtige Argument.' },
     ] },
     { id: 'gartenhaus', who: 'Eine Frau aus Aktenried', text: 'möchte wissen, warum ihr Gartenhaus mehr Steuern zahlt als das Rathaus.', opts: [
@@ -77,13 +77,13 @@
     ] },
     { id: 'umzug', who: 'Die Amtsleitung', text: 'verkündet: Das Amt zieht um – in das Gebäude gegenüber.', minEra: 2, opts: [
       { label: 'Umzugskartons beantragen', fx: { vor: 8 }, res: 'In dreifacher Ausfertigung. Die Kartons kommen in Kartons.' },
-      { label: 'Die Boten tragen alles einzeln', fx: { prod: [2, 60] }, res: 'Tausend Gänge, aber alle in Bewegung: Produktion ×2 für eine Minute.' },
+      { label: 'Die Boten tragen alles einzeln', fx: { prod: [2, 60] }, res: 'Tausend Gänge, aber alle in Bewegung.' },
     ] },
     { id: 'jubilaeum', who: 'Frau Huber aus der Registratur', text: 'feiert ihr vierzigjähriges Dienstjubiläum.', minEra: 3, opts: [
-      { label: 'Blumen und Urkunde', fx: { prod: [2, 180] }, res: 'Sie ist gerührt. Alle arbeiten beschwingt: Produktion ×2 für 3 Minuten.' },
+      { label: 'Blumen und Urkunde', fx: { prod: [2, 180] }, res: 'Sie ist gerührt. Alle arbeiten beschwingt.' },
       { label: 'Eine Rede halten (45 Minuten)', fx: { chance: { p: 0.5,
         win: { akten: 6, res: 'Die Rede ist so gut, dass sie im Amtsblatt abgedruckt wird.' },
-        lose: { prod: [0.7, 60], res: 'Nach Minute zwölf schläft die halbe Registratur. Produktion ×0,7 für eine Minute.' } } } },
+        lose: { prod: [0.7, 60], res: 'Nach Minute zwölf schläft die halbe Registratur.' } } } },
     ] },
     { id: 'ki', who: 'Die KI-Sachbearbeitung', text: 'fragt, ob sie einen Antrag auf Selbstständigkeit stellen darf.', minEra: 8, opts: [
       { label: 'Formular KI-1 aushändigen', fx: { vor: 10 }, res: 'Sie füllt es in 0,2 Sekunden aus und hat 38 Rückfragen.' },
@@ -92,7 +92,7 @@
     { id: 'presse', who: 'Ein Lokaljournalist', text: 'fragt, wann der Flughafen Schilda-Süd eröffnet.', minEra: 5, opts: [
       { label: '„Demnächst.“', fx: { akten: 2 }, res: 'Er notiert „demnächst“. Zum elften Mal.' },
       { label: 'Pressemitteilung: „Wir sind im Zeitplan“', fx: { chance: { p: 0.5,
-        win: { prod: [2, 120], res: 'Die Stimmung steigt: Produktion ×2 für 2 Minuten.' },
+        win: { prod: [2, 120], res: 'Die Stimmung steigt.' },
         lose: { vor: 7, res: 'Niemand glaubt es. Drei Untersuchungsausschüsse werden gegründet.' } } } },
     ] },
     { id: 'faxpflicht', who: 'Eine Anwaltskanzlei', text: 'bittet um ein Fax, da E-Mails nicht rechtssicher seien.', minEra: 5, opts: [
@@ -101,7 +101,7 @@
     ] },
     { id: 'mittag', who: 'Jemand am Schalter', text: 'hat eine kurze Frage. Es ist 11:58 Uhr.', opts: [
       { label: 'Schnell noch beantworten', fx: { akten: 3 }, res: 'Die Frage war wirklich kurz. Wer hätte das gedacht.' },
-      { label: 'Schild umdrehen: „Mittagspause“', fx: { prod: [1.5, 120] }, res: 'Gestärkt geht es weiter: Produktion ×1,5 für 2 Minuten.' },
+      { label: 'Schild umdrehen: „Mittagspause“', fx: { prod: [1.5, 120] }, res: 'Gestärkt geht es weiter.' },
     ] },
     { id: 'marke1', who: 'Ein Bürger', text: 'hat Wartemarke Nr. 1 gezogen – zum ersten Mal seit 1987.', opts: [
       { label: 'Sofort aufrufen', fx: { form: 2 }, res: 'Feierliche Übergabe mit Fotograf! Es werden zwei Formulare ausgehändigt.' },
@@ -112,8 +112,8 @@
       { label: 'Ablehnen', fx: { akten: 3 }, res: 'Die Zeit wird für echte Arbeit genutzt. Ungewohnt, aber effektiv.' },
     ] },
     { id: 'katze', who: 'Eine Katze', text: 'schläft auf dem Eingangskorb.', opts: [
-      { label: 'Vorsichtig darunter durchstempeln', fx: { click: [4, 40] }, res: 'Sie schnurrt im Takt. Eingangsstempel ×4 für 40 Sekunden.' },
-      { label: 'Zur Bürokatze ernennen', fx: { prod: [1.3, 600] }, res: 'Ehrenamtlich, versteht sich. Produktion ×1,3 für 10 Minuten.' },
+      { label: 'Vorsichtig darunter durchstempeln', fx: { click: [4, 40] }, res: 'Sie schnurrt im Takt.' },
+      { label: 'Zur Bürokatze ernennen', fx: { prod: [1.3, 600] }, res: 'Ehrenamtlich, versteht sich.' },
     ] },
     { id: 'antragablehnung', who: 'Ein Antrag', text: 'auf Ablehnung dieses Antrags ist eingegangen.', opts: [
       { label: 'Bewilligen (und damit ablehnen)', fx: { akten: 2.5 }, res: 'Bewilligt und abgelehnt. Alle sind zufrieden, keiner weiß warum.' },
@@ -121,10 +121,10 @@
       { label: 'Philosophisch prüfen', fx: { vor: 10 }, res: 'Die Prüfung dauert an. Bisheriges Ergebnis: ein Stapel neuer Vorschriften.' },
     ] },
     { id: 'revision', who: 'Ein Inspektor des Königs', text: 'kündigt sich zur Revision an.', minEra: 3, maxEra: 4, opts: [
-      { label: 'Akten in Reih und Glied', fx: { prod: [2, 120] }, res: 'Er ist beeindruckt. Alle auch: Produktion ×2 für 2 Minuten.' },
+      { label: 'Akten in Reih und Glied', fx: { prod: [2, 120] }, res: 'Er ist beeindruckt. Alle auch.' },
       { label: 'Alles schnell in den Keller', fx: { chance: { p: 0.5,
         win: { akten: 8, res: 'Er geht nie in den Keller. Und findet nur Vorbildliches.' },
-        lose: { prod: [0.5, 60], res: 'Er geht ausgerechnet in den Keller. Produktion ×0,5 für eine Minute.' } } } },
+        lose: { prod: [0.5, 60], res: 'Er geht ausgerechnet in den Keller.' } } } },
     ] },
     { id: 'census', who: 'Ein römischer Bürger', text: 'möchte im Census als „Gott“ eingetragen werden.', minEra: 1, maxEra: 2, opts: [
       { label: 'Eintragen – gegen Gebühr', fx: { akten: 4 }, res: 'Gebühr für Gottheiten: 40 Sesterzen. Er zahlt bar.' },
@@ -133,12 +133,12 @@
     { id: 'bier', who: 'Bauer Ninurta', text: 'reklamiert die Bierquittung von gestern: Es waren 29 Krüge, nicht 30.', maxEra: 0, opts: [
       { label: 'Neue Tontafel brennen', fx: { akten: 1.5 }, res: 'Die alte Tafel wird zur Korrektur in den Fluss geworfen. Archivierung nach Art des Hauses.' },
       { label: 'Den dreißigsten Krug suchen', fx: { chance: { p: 0.5,
-        win: { prod: [3, 60], res: 'Gefunden – im Archiv! Alle stoßen an: Produktion ×3 für eine Minute.' },
-        lose: { prod: [0.6, 30], res: 'Er wurde schon getrunken. Vom Archivar. Produktion ×0,6 für 30 Sekunden.' } } } },
+        win: { prod: [3, 60], res: 'Gefunden – im Archiv! Alle stoßen an.' },
+        lose: { prod: [0.6, 30], res: 'Er wurde schon getrunken. Vom Archivar.' } } } },
     ] },
     { id: 'excel', who: 'Der Digitalisierungsbeauftragte', text: 'wünscht sich eine Tabelle zur Verwaltung aller Tabellen.', minEra: 7, opts: [
       { label: 'Genehmigen', fx: { vor: 10 }, res: 'Die Tabelle hat 1.048.576 Zeilen. Alle belegt.' },
-      { label: 'Lieber eine Datenbank', fx: { prod: [2, 120] }, res: 'Ein mutiger Schritt! Produktion ×2 für 2 Minuten.' },
+      { label: 'Lieber eine Datenbank', fx: { prod: [2, 120] }, res: 'Ein mutiger Schritt!' },
     ] },
     { id: 'schilda', who: 'Ein Mann aus Schilda', text: 'möchte Sonnenlicht in Säcken ins Rathaus tragen.', minEra: 4, rare: true, opts: [
       { label: 'Genehmigen', fx: { flag: 'schilda' }, res: 'Wahnsinn mit Methode. Das Leitbild „Schilda“ ist ab sofort bei der Verwaltungsreform wählbar.' },
@@ -234,30 +234,55 @@
       'Rätsel der Woche: Wer hat den Locher zuletzt gesehen?',
       'Achtung: Der Eingangsstempel zeigt seit Montag das Datum von Freitag.',
       'Bürgerservice-Hotline jetzt erreichbar unter: besetzt.',
+      'Gremium beschließt Pause. Pause wird vertagt.',
+      'Neue Studie: Wer Formulare liest, füllt sie seltener aus.',
+      'Hausmeister meldet: Aktenschrank 7 hat sich selbst einsortiert.',
+      'Die Wartenummer 1.000.000 wurde gezogen. Der Glückliche erhält eine weitere Wartenummer.',
+      'Vorschlagswesen: Idee „weniger Vorschläge“ wird geprüft.',
+      'Stellungnahme zur Stellungnahme erscheint als Anlage zur Anlage.',
+      'Amtsleitung lobt Mitarbeiterin des Monats. Sie war die einzige, die das Formular dafür eingereicht hat.',
+      'Die Registratur ist umgezogen. Wohin, steht in einer Akte in der Registratur.',
+      'Ein Kugelschreiber hat 40 Dienstjahre erreicht. Er schreibt nicht mehr, ist aber unkündbar.',
+      'Telefonzentrale: „Ihr Anruf ist uns wichtig.“ Seit 1998 in Dauerschleife.',
+      'Wetterdienst: In der Kantine zieht ein Tief über den Nachtisch.',
+      'Aktenzeichen XY ungelöst: Wer hat den Stempel „Erledigt“ für privat benutzt?',
+      'Bürger beschwert sich über zu schnelle Bearbeitung. Er hatte noch nicht fertig gewartet.',
+      'Neue Dienstwagenregelung: Fahrräder müssen einen Fahrtenbuch-Anhänger ziehen.',
+      'Betriebsrat fordert Recht auf Nichtzuständigkeit.',
+      'Ausschreibung für neue Wartestühle läuft. Bis dahin wird gestanden.',
+      'Der Amtsschimmel hat sich um eine Planstelle beworben. Sein Lebenslauf hat 14 Hufabdrücke.',
+      'Rundschreiben: Bitte keine Rundschreiben mehr als „Allen antworten“ beantworten.',
+      'Schulungsvideo „Richtig lochen“ jetzt in 4K.',
+      'Erfolgsmeldung: Das Zwischenziel wurde zwischenzeitlich erreicht.',
+      'Gerücht: Irgendwo im Keller gibt es ein Formular, das sich selbst ausfüllt.',
+      'Amtliche Mitteilung: Diese Mitteilung ist amtlich.',
+      'Bürgerfest am Samstag: Stempelwettbewerb, Lochertombola und Hüpfburg in Form eines Aktenordners.',
+      'Neu im Fundbüro: drei Lesebrillen, ein Schirm und eine komplette Abteilung.',
+      'Archiv meldet Platzmangel. Der Antrag auf mehr Platz wird archiviert.',
     ],
-    0: ['Tempel meldet Rekordernte: 900 Krüge Bier verbucht.', 'Keilschrift-Reform: Ab sofort nur noch 600 Zeichen.', 'Tontafel-Archiv wegen Hochwasser vorübergehend matschig.', 'Ein Schreiber hat sich am Griffel verletzt. Arbeitsschutz prüft die Spitze.'],
-    1: ['Senat beschließt: Jeder Bürger muss sich zählen lassen. Bitte anstellen.', 'Tabularium meldet: Marmorregale bis 79 v. Chr. ausgebucht.', 'Cursus publicus: Pferdewechsel in Verzug, Bote wartet.', 'Neue Vorschrift: Lateinische Formulare nur noch in Großbuchstaben.'],
-    2: ['Kanzlei sucht Kanzlisten mit ruhiger Hand und viel Zeit.', 'Siegelwachs knapp: Bienen streiken.', 'Eilbote überholt Eilboten. Beide verspäten sich.', 'Mönch kopiert Urkunde fehlerfrei. Wird heiliggesprochen.'],
-    3: ['Seine Majestät wünscht Ordnung in den Akten. Die Akten wünschen Ordnung in Seiner Majestät.', 'Neue Aktenordnung: Rücken links, Titel oben, Beamter gerade.', 'Geheimer Rat befördert sich zum Geheimen Oberrat. Geheim.', 'Dienstanweisung zum korrekten Öffnen von Fenstern veröffentlicht (34 Seiten).'],
-    4: ['Rohrpost erreicht Rekordgeschwindigkeit: Büchse landet im Nachbarort.', 'Schreibstube meldet: Farbbänder sind alle.', 'Telefon im Amt installiert. Niemand weiß, wen man anrufen soll.', 'Kaiserliche Verordnung über das Klingeln von Schreibmaschinen.'],
-    5: ['Kommission legt Zwischenbericht zum Zwischenbericht vor.', 'Faxgerät empfängt erstmals ein Fax. Belegschaft applaudiert.', 'Flughafen Schilda-Süd: Eröffnung wie geplant demnächst.', 'Durchschlagpapier wird knapp. Behörde druckt Durchschläge auf Durchschläge.'],
-    6: ['Großrechner läuft seit 400 Tagen stabil. Niemand traut sich, ihn anzufassen.', 'Diskettenlaufwerk verschluckt Antrag. Antrag gilt als gestellt.', 'Neues Passwort-Merkblatt: Passwort bitte nicht auf das Merkblatt schreiben.', 'E-Mail-Anschluss beantragt. Antrag per Brief versandt.'],
-    7: ['E-Akte eingeführt! Zur Sicherheit wird jede Seite ausgedruckt.', 'Fachverfahren-Update verschoben. Grund: Fachverfahren.', 'Digitalisierungsbeauftragter druckt seine Strategie aus.', 'Onlineformular ab sofort verfügbar. Bitte ausdrucken und unterschrieben einreichen.'],
-    8: ['KI lehnt Antrag in 0,03 Sekunden ab. Begründung: ein Sonett.', 'KI beantragt Urlaub. Antrag wird von KI genehmigt.', 'Ethikrat prüft, ob die KI den Ethikrat prüfen darf.', 'Smart City: Ampeln sind jetzt intelligent und rot.'],
-    9: ['Weltamt eröffnet Außenstelle auf dem Mond. Öffnungszeiten: nach Mondphase.', 'Interplanetares Aktenzeichen hat jetzt 48 Stellen.', 'Weltverwaltungsrat tagt. Ergebnis wird im nächsten Jahrhundert erwartet.', 'Gerücht: Ganz oben im Weltamt soll es einen Knopf geben.'],
+    0: ['Tempel meldet Rekordernte: 900 Krüge Bier verbucht.', 'Ziegelei liefert Tontafeln jetzt auch in Querformat.', 'Erster Fall von Schreibkrampf dokumentiert – auf einer Tontafel.', 'Keilschrift-Reform: Ab sofort nur noch 600 Zeichen.', 'Tontafel-Archiv wegen Hochwasser vorübergehend matschig.', 'Ein Schreiber hat sich am Griffel verletzt. Arbeitsschutz prüft die Spitze.'],
+    1: ['Senat beschließt: Jeder Bürger muss sich zählen lassen. Bitte anstellen.', 'Alle Wege führen nach Rom. Die Formulare auch.', 'Ein kleines Dorf im Norden verweigert den Census. Rom schickt vier Legionen Formulare.', 'Tabularium meldet: Marmorregale bis 79 v. Chr. ausgebucht.', 'Cursus publicus: Pferdewechsel in Verzug, Bote wartet.', 'Neue Vorschrift: Lateinische Formulare nur noch in Großbuchstaben.'],
+    2: ['Kanzlei sucht Kanzlisten mit ruhiger Hand und viel Zeit.', 'Burgherr beantragt Zugbrücke mit Gegenverkehr.', 'Ritter beschwert sich über Wartezeit am Burgtor: drei Tage.', 'Siegelwachs knapp: Bienen streiken.', 'Eilbote überholt Eilboten. Beide verspäten sich.', 'Mönch kopiert Urkunde fehlerfrei. Wird heiliggesprochen.'],
+    3: ['Seine Majestät wünscht Ordnung in den Akten. Die Akten wünschen Ordnung in Seiner Majestät.', 'Neue Vorschrift: Dienstbeginn 7 Uhr, Dienstschluss bei Pflichterfüllung.', 'Kartoffelbefehl ausgegeben. Kartoffeln reagieren nicht.', 'Neue Aktenordnung: Rücken links, Titel oben, Beamter gerade.', 'Geheimer Rat befördert sich zum Geheimen Oberrat. Geheim.', 'Dienstanweisung zum korrekten Öffnen von Fenstern veröffentlicht (34 Seiten).'],
+    4: ['Rohrpost erreicht Rekordgeschwindigkeit: Büchse landet im Nachbarort.', 'Fräulein vom Amt verbindet versehentlich zwei Ämter miteinander. Beide sind zufrieden.', 'Erste Schreibmaschine mit Umlauten! Das ü klemmt.', 'Schreibstube meldet: Farbbänder sind alle.', 'Telefon im Amt installiert. Niemand weiß, wen man anrufen soll.', 'Kaiserliche Verordnung über das Klingeln von Schreibmaschinen.'],
+    5: ['Kommission legt Zwischenbericht zum Zwischenbericht vor.', 'Tischtelefon mit Wählscheibe ausgeliefert. Kabel reicht bis zur Kaffeemaschine.', 'Ölkrise: Amtsleitung fährt mit dem Paternoster zur Arbeit.', 'Faxgerät empfängt erstmals ein Fax. Belegschaft applaudiert.', 'Flughafen Schilda-Süd: Eröffnung wie geplant demnächst.', 'Durchschlagpapier wird knapp. Behörde druckt Durchschläge auf Durchschläge.'],
+    6: ['Großrechner läuft seit 400 Tagen stabil. Niemand traut sich, ihn anzufassen.', 'Jahr-2000-Problem: Großrechner datiert alle Akten auf 1900. Die Kaiserzeit kehrt zurück.', 'Neues Programm „Formular 3.11“ startet in nur zwölf Minuten.', 'Diskettenlaufwerk verschluckt Antrag. Antrag gilt als gestellt.', 'Neues Passwort-Merkblatt: Passwort bitte nicht auf das Merkblatt schreiben.', 'E-Mail-Anschluss beantragt. Antrag per Brief versandt.'],
+    7: ['E-Akte eingeführt! Zur Sicherheit wird jede Seite ausgedruckt.', 'Videokonferenz scheitert an der Frage: „Hören Sie mich?“', 'Portal „Bürgerservice online“ wegen Wartungsarbeiten an Werktagen geschlossen.', 'Fachverfahren-Update verschoben. Grund: Fachverfahren.', 'Digitalisierungsbeauftragter druckt seine Strategie aus.', 'Onlineformular ab sofort verfügbar. Bitte ausdrucken und unterschrieben einreichen.'],
+    8: ['KI lehnt Antrag in 0,03 Sekunden ab. Begründung: ein Sonett.', 'Chatbot „Amtine“ beantwortet jede Frage mit einer Gegenfrage. Bürger fühlen sich verstanden.', 'Drohne liefert Bescheid. Der Hund des Empfängers widerspricht.', 'KI beantragt Urlaub. Antrag wird von KI genehmigt.', 'Ethikrat prüft, ob die KI den Ethikrat prüfen darf.', 'Smart City: Ampeln sind jetzt intelligent und rot.'],
+    9: ['Weltamt eröffnet Außenstelle auf dem Mond. Öffnungszeiten: nach Mondphase.', 'Marskolonie beantragt eigene Zeitzone. Antrag wird in Erdzeit bearbeitet.', 'Asteroid erhält Hausnummer und muss Grundsteuer zahlen.', 'Interplanetares Aktenzeichen hat jetzt 48 Stellen.', 'Weltverwaltungsrat tagt. Ergebnis wird im nächsten Jahrhundert erwartet.', 'Gerücht: Ganz oben im Weltamt soll es einen Knopf geben.'],
   };
 
   /* ---------- Tipps des Amtsschimmels ---------- */
   // Reihenfolge = Priorität. when(S, C) entscheidet, wann ein Tipp kommt; er erscheint nur einmal.
   D.TIPS = [
     { id: 'start', when: (S) => S.stats.clicks === 0 && S.gt > 1.5, done: (S) => S.stats.clicks > 0, text: 'Wieher! Willkommen im Amt. Klick auf die Akte auf deinem Schreibtisch – oder drück die Leertaste –, um sie abzustempeln.' },
-    { id: 'buy', when: (S) => S.akten >= 15 && !S.gens.schreiber, done: (S) => !!S.gens.schreiber || S.akten < 15, text: 'Du hast genug Akten für einen Tontafelschreiber. Rechts unter „Haushalt“ kannst du ihn einstellen. Er arbeitet für dich, auch wenn du nicht stempelst.' },
+    { id: 'buy', when: (S) => S.akten >= 15 && !S.gens.schreiber, done: (S) => !!S.gens.schreiber || S.akten < 15, text: 'Du hast genug Akten für einen Tontafelschreiber. Unter „Haushalt“ kannst du ihn einstellen. Er arbeitet für dich, auch wenn du nicht stempelst.' },
     { id: 'upgrade', when: (S, C) => C.availableUpgrades().length > 0 && S.ups && Object.keys(S.ups).length === 0 && S.gt > 20, text: 'Unter „Verbesserungen“ wartet etwas. Verbesserungen machen dein Personal dauerhaft schneller.' },
     { id: 'ressort', when: (S, C) => C.activeRessorts().length >= 2, text: 'Neu in Rom: Zuständigkeiten! Jede Akte gehört zu einem Ressort. Drück den passenden Ressortstempel (oder die Tasten 1–6): Das bringt viel mehr als der Eingangsstempel und baut Arbeitsfluss auf. Aber Vorsicht – der falsche Stempel erzeugt einen Widerspruch.' },
     { id: 'gremium', when: (S) => S.era >= 1 && S.akten >= 2500 && !S.grem.ausschuss, text: 'Ein Ausschuss tagt nie umsonst: Er beschließt Vorschriften (§). Mit Vorschriften erlässt du unter „Paragrafen“ mächtige Regeln – und angesammelte Vorschriften steigern deine Produktion.' },
     { id: 'para', when: (S) => S.vor >= 1 && Object.keys(S.paras).length === 0, text: 'Deine erste Vorschrift ist beschlossen! Unter „Paragrafen“ kannst du sie in Kraft setzen. Tipp: Gespartes vermehrt sich – Vorschriften erzeugen Vorschriften.' },
-    { id: 'eilt', when: (S) => S.korb && S.korb.doc && S.korb.doc.type === 'eilt', text: 'EILT! Dieser Vorgang hat eine Frist. Stempel ihn rechtzeitig mit dem richtigen Ressort ab, dann gibt es einen dicken Bonus.' },
-    { id: 'wider', when: (S) => S.stats.wrong >= 1, text: 'Falscher Stempel – das gibt einen Widerspruch. Keine Sorge: Er kommt bald zurück, braucht zwei richtige Stempel und bringt dafür das Dreifache.' },
+    { id: 'eilt', when: (S) => S.korb && S.korb.doc && S.korb.doc.type === 'eilt', text: 'EILT! Dieser Vorgang hat eine Frist. Stemple ihn rechtzeitig mit dem richtigen Ressort ab, dann gibt es einen dicken Bonus.' },
+    { id: 'wider', when: (S) => S.stats.wrong >= 1, text: 'Falscher Stempel – das gibt einen Widerspruch. Keine Sorge: Er kommt bald zurück und braucht dann zwei richtige Stempel. Absichtlich falsch stempeln lohnt sich also nicht – und der Arbeitsfluss ist auch weg.' },
     { id: 'schimmel', when: (S) => S.stats.schimmel === 0 && S.schimmel && S.schimmel.active, done: (S) => !S.schimmel.active, text: 'Da! Das bin ich – also, mein Kollege. Fang den Amtsschimmel, bevor er weg ist. Er bringt Glück.' },
     { id: 'anliegen', when: (S) => S.anliegen && S.anliegen.cur && S.stats.anliegen === 0, text: 'Kundschaft am Schalter! Bürgeranliegen haben mehrere Antworten. Jede hat ihre eigenen Folgen – manchmal lohnt sich Mut.' },
     { id: 'form', when: (S) => Object.keys(S.forms).length >= 1 && S.stats.formsFound <= 1, text: 'Ein Formular für dein Album! Formulare bleiben für immer, auch nach einer Reform. Jedes neue steigert deine Produktion, volle Ordner geben Sonderboni.' },

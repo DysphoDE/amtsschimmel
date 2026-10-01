@@ -1,8 +1,8 @@
 'use strict';
-/* Amtsschimmel – Start, Hauptschleife, Speichern, Tastatur, Sichtbarkeit, Service Worker. */
+/* Amtsschimmel – Start, Hauptschleife, Speichern, Tastatur, Sichtbarkeit, Tab-Sperre, Service Worker. */
 (function (root) {
   const AS = root.AS;
-  const U = AS.U, C = AS.Core;
+  const C = AS.Core;
   const Main = (AS.Main = {});
 
   // Speicher mit Fehlerbehandlung (Privatmodus, voller Speicher, gesperrte Cookies)
@@ -24,16 +24,59 @@
     AS.UI.refresh();
   };
 
-  let last = performance.now(), lastFrame = performance.now(), slowAcc = 0, saveAcc = 0;
+  /* ---------- Nur ein Tab speichert ---------- */
+  const LOCK = 'amtsschimmel.lock';
+  // Die Tab-ID bleibt beim Neuladen desselben Tabs erhalten (sessionStorage gilt pro Tab)
+  let tabId = null;
+  try { tabId = sessionStorage.getItem('amtsschimmel.tabid'); } catch (e) { tabId = null; }
+  if (!tabId) { tabId = Math.random().toString(36).slice(2); try { sessionStorage.setItem('amtsschimmel.tabid', tabId); } catch (e) { /* egal */ } }
+  const releaseLock = () => { const l = readLock(); if (l && l.id === tabId) C.storage.remove(LOCK); };
+  let blocked = false, blockModal = null;
+  const readLock = () => { try { return JSON.parse(C.storage.get(LOCK) || 'null'); } catch (e) { return null; } };
+  const writeLock = () => { try { C.storage.set(LOCK, JSON.stringify({ id: tabId, t: Date.now() })); } catch (e) { /* egal */ } };
+  function block(text) {
+    if (blocked) return;
+    blocked = true;
+    C.readOnly = true;
+    blockModal = AS.UI.modal('<h2>Schon in einem anderen Tab geöffnet</h2><p>' + text + '</p><p class="small muted">Damit sich zwei Tabs nicht gegenseitig den Spielstand überschreiben, wird hier gerade nicht gespeichert.</p>' +
+      '<div class="modal-actions"><button class="btn primary" type="button" data-take autofocus>Hier weiterspielen</button></div>', { noClose: true });
+    blockModal.el.querySelector('[data-take]').addEventListener('click', takeOver);
+  }
+  function takeOver() {
+    if (blockModal) { blockModal.close(); blockModal = null; }
+    blocked = false;
+    C.readOnly = !!C.futureLock;
+    writeLock();
+    const info = C.load(); // den neuesten Stand des anderen Tabs übernehmen
+    Main.afterLoad();
+    if (info.offline) AS.UI.offlineReport(info.offline);
+  }
+  function heartbeat() {
+    const l = readLock();
+    if (l && l.id !== tabId && Date.now() - l.t < 12000) {
+      if (!blocked) block('In einem anderen Tab wurde zuletzt weitergespielt.');
+      return;
+    }
+    if (!blocked) writeLock();
+  }
+
+  /* ---------- Schleifen ---------- */
+  // Die Uhrzeit (nicht performance.now) misst auch Standby und Ruhezustand richtig.
+  let last = Date.now(), lastFrame = performance.now(), slowAcc = 0, saveAcc = 0, beatAcc = 0;
+  const OFFLINE_GAP = 300;
   function logic() {
-    const now = performance.now();
-    let dt = (now - last) / 1000;
+    const now = Date.now();
+    const dt = (now - last) / 1000;
     last = now;
-    if (dt <= 0) return;
-    if (dt > 6 * 3600) dt = 6 * 3600;
-    C.tick(dt);
-    slowAcc += dt; saveAcc += dt;
+    if (!(dt > 0)) return; // Uhr zurückgestellt: nichts tun
+    if (dt > OFFLINE_GAP) {
+      // Längere Lücke (Standby, gedrosselter Hintergrund-Tab): wie Abwesenheit abrechnen
+      const r = C.applyOffline(dt);
+      if (r && r.gain > 0 && !document.hidden) AS.UI.offlineReport(r);
+    } else C.tick(dt);
+    slowAcc += dt; saveAcc += dt; beatAcc += dt;
     if (slowAcc >= 0.25) { slowAcc = 0; try { AS.UI.slow(); AS.Desk.slow(); } catch (e) { console.error(e); } }
+    if (beatAcc >= 4) { beatAcc = 0; heartbeat(); }
     if (saveAcc >= 15) { saveAcc = 0; Main.save(); }
   }
   function frame(now) {
@@ -50,37 +93,55 @@
     if (document.querySelector('.modal-back, .finale')) return;
     const k = e.key;
     if (k === ' ' || k === 'Spacebar') {
-      if (t && t.closest && t.closest('button, [role="button"]:not(.doc), a')) return;
+      if (t && t.closest && t.closest('button, [role="button"]:not(.doc), a, summary')) return;
       e.preventDefault();
       if (!e.repeat) AS.Desk.eingang();
       return;
     }
-    if (/^[1-6]$/.test(k)) { e.preventDefault(); AS.Desk.ressort(Number(k) - 1); return; }
+    if (/^[1-6]$/.test(k)) { e.preventDefault(); if (!e.repeat) AS.Desk.ressort(Number(k) - 1); return; }
+    if (e.repeat) return;
     if (k === 'b' || k === 'B') { C.buyAllUpgrades(); return; }
     if (k === 'm' || k === 'M') { const st = C.get().settings; st.sound = !st.sound; AS.UI.applySettings(); return; }
   }
 
+  function registerSW() {
+    if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol) || /localhost|127\.0\.0\.1/.test(location.hostname)) return;
+    navigator.serviceWorker.register('sw.js').then((reg) => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        if (!nw) return;
+        nw.addEventListener('statechange', () => {
+          if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+            Main.save();
+            AS.UI.toast({ icon: 'stern', kicker: 'Neue Version', title: 'Das Amt wurde modernisiert', text: 'Hier tippen, um die neue Version zu laden.', ms: 20000, onClick: () => { Main.save(); location.reload(); } });
+          }
+        });
+      });
+    }).catch(() => { /* offline-fähig ist ein Bonus */ });
+  }
+
   function boot() {
+    const prior = readLock();
     const info = C.load();
     AS.Desk.init();
     AS.UI.init();
     AS.UI.loadInfo(info);
     if (!lsOk) AS.UI.toast({ icon: 'widerspruch', kicker: 'Hinweis', title: 'Speichern nicht möglich', text: 'Der Browser erlaubt keinen lokalen Speicher. Exportiere deinen Spielstand regelmäßig.', cls: 'red', ms: 9000 });
+    if (prior && prior.id !== tabId && Date.now() - prior.t < 12000) block('Amtsschimmel läuft bereits in einem anderen Tab oder Fenster.');
+    else writeLock();
+    window.addEventListener('storage', (e) => { if (e.key === LOCK) heartbeat(); });
     C.visible = !document.hidden;
     document.addEventListener('visibilitychange', () => {
       C.visible = !document.hidden;
-      if (document.hidden) Main.save();
-      else last = performance.now() - Math.min(performance.now() - last, 6 * 3600 * 1000);
+      if (document.hidden) Main.save(); else heartbeat();
     });
-    window.addEventListener('pagehide', Main.save);
+    window.addEventListener('pagehide', () => { Main.save(); releaseLock(); });
     window.addEventListener('beforeunload', Main.save);
     document.addEventListener('keydown', onKey);
     ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => AS.Audio.unlock(), { once: true, passive: true }));
     setInterval(logic, 100);
     requestAnimationFrame(frame);
-    if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol) && !/localhost|127\.0\.0\.1/.test(location.hostname)) {
-      navigator.serviceWorker.register('sw.js').catch(() => { /* offline-fähig ist ein Bonus */ });
-    }
+    registerSW();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
 })(window);

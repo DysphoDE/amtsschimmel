@@ -1,5 +1,5 @@
 // Balance-Simulation mit virtueller Zeit.
-// Aufruf: node tools/sim.mjs [Stunden=12] [Profil=active|casual|idle] [Seed=1]
+// Aufruf: node tools/sim.mjs [Stunden=12] [Profil=active|casual|clicker|abend|idle] [Seed=1]
 //         node tools/sim.mjs lb          – vergleicht alle Leitbilder aus einem mittleren Spielstand
 import { createRequire } from 'module';
 const require = createRequire(import.meta.url);
@@ -23,6 +23,7 @@ const P = {
   casual: { stampRate: 0.8, acc: 0.9, eingangRate: 1, catchP: 0.7, onMin: 10, offMin: 20 },
   idle: { stampRate: 0.5, acc: 0.85, eingangRate: 1, catchP: 0.6, onMin: 5, offMin: 180, offline: true },
   clicker: { stampRate: 0, acc: 1, eingangRate: 4, catchP: 0.8, onFrac: 1 },
+  abend: { stampRate: 1, acc: 0.9, eingangRate: 0.5, catchP: 0.7, onMin: 60, offMin: 1380, offline: true },
 }[PROFILE];
 
 const log = [];
@@ -56,6 +57,8 @@ function spend() {
     if (!open.length || C.paraCost(open[0]) > S.vor) break;
     C.buyPara(open[0].id);
   }
+  // Gesetzesnovellen: nur, wenn danach noch genug Vorschriften für den Bonus übrig bleiben
+  for (let k = 0; k < 5 && C.novelleOpen() && C.novelleCost() <= S.vor * 0.5; k++) C.buyNovelle();
   // Generatoren nach Amortisation
   for (let k = 0; k < 60; k++) {
     let best = null, bs = Infinity;

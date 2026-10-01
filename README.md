@@ -12,7 +12,7 @@ Der Spielstand liegt im `localStorage`. Er wird alle 15 Sekunden gespeichert, da
 
 ## Spielprinzip
 
-- **Stempeln.** Ein Klick auf die Akte (oder die Leertaste) ist der Eingangsstempel. Ab Rom gibt es **Zuständigkeiten**: Jede Akte gehört zu einem von bis zu sechs Ressorts. Der richtige Ressortstempel (Tasten 1–6) bringt ein Vielfaches und baut **Arbeitsfluss** auf. Der falsche erzeugt einen **Widerspruch**. Er kommt später „doppelt so dick“ zurück, braucht zwei Stempel und zahlt dafür das Dreifache.
+- **Stempeln.** Ein Klick auf die Akte (oder die Leertaste) ist der Eingangsstempel. Ab Rom gibt es **Zuständigkeiten**: Jede Akte gehört zu einem von bis zu sechs Ressorts. Der richtige Ressortstempel (Tasten 1–6) bringt ein Vielfaches und baut **Arbeitsfluss** auf. Der falsche erzeugt einen **Widerspruch**. Er kommt später „doppelt so dick“ zurück und braucht dann zwei Stempel; ein kleiner Bonus federt das ab. Absichtlich falsch zu stempeln lohnt sich nicht, das sichert ein eigener Test ab. Die einzige Ausnahme ist das geheime Leitbild der Schildbürger.
 - **Sonderfälle.** EILT-Vorgänge haben eine Frist, ab der Kaiserzeit gibt es Mitzeichnungen über drei Ressorts. Jede der zehn Epochen hat eine eigene Aktenoptik: Tontafel, Wachstafel, Pergament mit Siegel, Aktendeckel, Schreibmaschinenformular, Durchschlag, Endlospapier, PDF-Fenster, Hologramm und Sternenpapier.
 - **Haushalt.** 18 Generatoren in drei Kategorien (Personal, Sachmittel, Technik). Dazu Stufen-Verbesserungen, Synergien und Sonderverbesserungen für Stempel, Fluss, Fristen, Formulare, Schimmel und Gremien.
 - **Gremien und Paragrafen.** Fünf Gremien beschließen **Vorschriften (§)**. Mit ihnen werden 36 Paragrafen in vier Teilen in Kraft gesetzt. Angesammelte Vorschriften steigern die Produktion und vermehren sich selbst (Parkinson-Faktor). Das ergibt eine echte Entscheidung: sparen oder ausgeben.
@@ -31,7 +31,7 @@ Der Spielstand liegt im `localStorage`. Er wird alle 15 Sekunden gespeichert, da
   - Parkinson pur
   - und ein geheimes
 - **Abwechslung lohnt sich.** Ein neu erlebtes Leitbild gibt dauerhaft +5 %. Wer dasselbe Leitbild mehrmals hintereinander wählt, wird reformmüde. Nur Kameralistik ist dagegen immun.
-- **Laufbahn.** 23 dauerhafte Stufen vom einfachen bis zum höheren Dienst, darunter Automatik, Bestandsschutz und Offline-Verbesserungen. Danach folgen endlose Erfahrungsstufen, damit Pensionspunkte nie wertlos werden.
+- **Laufbahn.** 23 dauerhafte Stufen vom einfachen bis zum höheren Dienst, darunter Automatik, Bestandsschutz und Offline-Verbesserungen. Danach folgen endlose Erfahrungsstufen, damit Pensionspunkte nie wertlos werden. Für Vorschriften gibt es dasselbe Prinzip: Nach allen 36 Paragrafen folgen endlose **Gesetzesnovellen**.
 - **187 Urkunden**, davon 14 geheim. Jede gibt +1 % Produktion.
 - **Ende.** Der Ein-Klick-Antrag schließt das Spiel mit Abspann ab, danach geht es mit dauerhaft ×2 als „Ewige Behörde“ weiter.
 
@@ -41,14 +41,18 @@ Die Simulation (`node tools/sim.mjs <Stunden> <Profil>`) steuert ein Bot-Spieler
 
 | Profil | Verhalten | Weltamt | Finale |
 |---|---|---|---|
-| `active` | sortiert dauerhaft 1,4 Akten/s, 95 % richtig | ca. 7 h | ca. 12–13 h |
-| `casual` | 10 Min. aktiv, 20 Min. weg | ca. 15 h | ca. 26 h |
-| `clicker` | nur Eingangsstempel, 4/s | ca. 12 h | ca. 21 h |
-| `idle` | 5 Min. alle 3 Stunden | – | ca. 13 Tage |
+| `active` | sortiert dauerhaft 1,4 Akten/s, 95 % richtig | ca. 6,5 h | ca. 10,5 h |
+| `casual` | 10 Min. aktiv, 20 Min. im Hintergrund | ca. 13,5 h | ca. 21 h |
+| `clicker` | nur Eingangsstempel, 4/s | ca. 8 h | ca. 12,5 h |
+| `abend` | 1 Stunde am Tag, sonst Tab geschlossen | – | ca. 7 Tage |
+| `idle` | 5 Minuten alle 3 Stunden, sonst Tab geschlossen | – | ca. 9 Tage |
 
-Aktives, richtiges Sortieren bringt im Spätspiel etwa das 2- bis 3-Fache der reinen Produktion. Gelegenheitsspieler werden über die Vertretung (automatisches Stempeln in Pausen), Automatik-Laufbahnstufen und den Offline-Ertrag mitgenommen.
+Aktives, richtiges Sortieren bringt im Spätspiel etwa das 2- bis 3-Fache der reinen Produktion. Gelegenheitsspieler werden über drei Dinge mitgenommen:
+- die Vertretung, die in Pausen automatisch stempelt,
+- die Automatik-Laufbahnstufen, die auch während der Abwesenheit einkaufen,
+- den Offline-Ertrag, der Vorschriften-Wachstum und Vertretung mitrechnet.
 
-`node tools/sim.mjs lb` vergleicht alle Leitbilder aus einem mittleren Spielstand. Sie liegen etwa innerhalb von Faktor 2,5 zueinander, jedes hat seine Stärken in einer anderen Spielweise oder Phase.
+`node tools/sim.mjs lb [Profil] [Seed]` vergleicht alle Leitbilder aus einem mittleren Spielstand. Bei aktivem Spiel liegen die regulären Leitbilder etwa innerhalb von Faktor 2,5, und das stärkste wechselt mit dem Zufall. Bei gelegentlichem Spiel und frühem Spielstand streuen sie stärker: „Digitalisierung zuerst“ ist ein Leitbild fürs Spätspiel, „Parkinson pur“ belohnt Abwesenheit.
 
 ## Technik
 
@@ -57,7 +61,8 @@ Aktives, richtiges Sortieren bringt im Spätspiel etwa das 2- bis 3-Fache der re
 - **Spielstand:**
   - Versionsfeld mit Migrationskette (`C.MIGRATIONS`) und Typprüfung jedes Feldes beim Laden.
   - Ein beschädigter Stand wird gesichert und aus der jüngsten Sicherungskopie wiederhergestellt.
-  - Ein Stand aus einer neueren Version wird nicht überschrieben.
+  - Bei einem Stand aus einer neueren Version wird das Speichern gesperrt, damit er nicht überschrieben wird.
+  - Ist das Spiel in zwei Tabs offen, speichert nur einer.
   - Der Export enthält eine Prüfsumme.
 - **Layouts:** Drei Spalten auf dem Desktop, zwei auf dem Tablet, eine mit unterer Navigation auf dem Handy.
 - **Barrierefreiheit:**
@@ -86,8 +91,8 @@ Aktives, richtiges Sortieren bringt im Spätspiel etwa das 2- bis 3-Fache der re
 ## Werkzeuge
 
 ```bash
-node tools/test.mjs          # 18 Tests: Zahlenformat, Datenintegrität, Mechanik, Reform, Spielstand, Langlauf
-node tools/sim.mjs 24 casual # Balance-Simulation (Profile: active, casual, clicker, idle)
+node tools/test.mjs          # 25 Tests: Zahlenformat, Datenintegrität, Mechanik, Exploits, Reform, Offline, Spielstand, Langlauf
+node tools/sim.mjs 24 casual # Balance-Simulation (Profile: active, casual, clicker, abend, idle)
 node tools/sim.mjs lb        # Leitbild-Vergleich
 node tools/build.mjs         # baut dist/amtsschimmel.html und setzt die Service-Worker-Version
 node tools/make-icon.mjs     # erzeugt icon.svg aus dem Schimmelkopf

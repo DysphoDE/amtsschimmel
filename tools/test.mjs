@@ -157,7 +157,7 @@ test('Bürgeranliegen: Antwort wirkt und plant das nächste', () => {
 test('Reform: setzt Durchgang zurück, behält Dauerhaftes, Reformmüdigkeit', () => {
   C.init();
   const S = C.get();
-  S.totalAkten = 1e13; S.runAkten = 1e13; S.akten = 5e12; S.gens.schreiber = 50; S.forms.f0 = 1; S.paras.p1 = true;
+  S.totalAkten = 1e14; S.runAkten = 1e14; S.akten = 5e13; S.gens.schreiber = 50; S.forms.f0 = 1; S.paras.p1 = true;
   C.recalc();
   const gain = C.djGain();
   assert.ok(gain >= 10);
@@ -171,9 +171,9 @@ test('Reform: setzt Durchgang zurück, behält Dauerhaftes, Reformmüdigkeit', (
   assert.equal(S.streak, 1, 'zweimal Kameralistik');
   assert.equal(C.M.muede, 1, 'Kameralistik ist immun');
   assert.equal(C.reform('zentral'), null, 'ohne neue Dienstjahre keine Reform');
-  S.totalAkten = 1e16; C.recalc();
+  S.totalAkten = 1e17; C.recalc();
   C.reform('zentral'); assert.equal(S.streak, 0);
-  S.totalAkten = 1e18; C.recalc();
+  S.totalAkten = 1e19; C.recalc();
   C.reform('zentral'); assert.equal(S.streak, 1);
   assert.ok(Math.abs(C.M.muede - 0.85) < 1e-9);
   assert.equal(C.reform('digital'), null, 'Digitalisierung noch nicht freigeschaltet');
@@ -300,6 +300,95 @@ test('Export und Import mit Prüfsumme', () => {
   assert.equal(C.importStr('hallo').ok, false);
   const bad = 'AMT1:' + U.toB64('{"v":1}') + '.' + U.hash('{"v":1}');
   assert.equal(C.importStr(bad).ok, false);
+});
+
+/* ---------- Regressionen aus dem Review ---------- */
+function exploitRun(wrongFirst, setup) {
+  C.init();
+  const S = C.get();
+  S.era = 6; S.maxEra = 6; S.gens.schreiber = 100; S.gens.siegel = 100;
+  setup(S);
+  C.recalc();
+  let actions = 0, earned = 0;
+  const before = () => S.totalAkten;
+  for (let i = 0; i < 3000; i++) {
+    const d = C.doc();
+    const t0 = before();
+    if (wrongFirst && d.type !== 'wider' && S.korb.pending.length < 8) C.ressort((d.r + 1) % C.activeRessorts().length);
+    else C.ressort(d.r);
+    earned += before() - t0; actions++;
+  }
+  return earned / actions;
+}
+test('Absichtlich falsch stempeln lohnt sich nicht (außer in Schilda)', () => {
+  const full = (S) => { S.ups.wi1 = true; S.ups.wi2 = true; S.paras.p22 = true; };
+  const right = exploitRun(false, full), wrong = exploitRun(true, full);
+  assert.ok(wrong < right, 'falsch ' + wrong + ' >= richtig ' + right);
+  const early = exploitRun(true, (S) => {}), earlyRight = exploitRun(false, (S) => {});
+  assert.ok(early < earlyRight, 'früh: falsch ' + early + ' >= richtig ' + earlyRight);
+});
+test('Eingangsstempel-Verbesserungen wirken auch im Spätspiel', () => {
+  C.init();
+  const S = C.get();
+  S.era = 6; S.gens.grossrechner = 50; S.ups.st3 = true; S.ups.st4 = true;
+  C.recalc();
+  const v0 = C.M.clickVal;
+  S.ups.st1 = true; C.recalc();
+  assert.ok(C.M.clickVal > v0 * 1.9, 'Stempelkissen ×2 wirkt');
+});
+test('Volle Widerspruchs-Warteschlange: Akte bleibt liegen', () => {
+  C.init();
+  const S = C.get();
+  C.earn(1e3); C.tick(1);
+  while (C.doc().r < 0) C.eingang();
+  for (let i = 0; i < 8; i++) S.korb.pending.push({ r: 0, type: 'wider', need: 2, prog: 0, title: 't', due: 1e9 });
+  const d = C.doc();
+  C.ressort((d.r + 1) % 2);
+  assert.equal(C.doc().no, d.no, 'dieselbe Akte liegt noch da');
+});
+test('Offline: Automatik kauft ein, Vertretung stempelt mit', () => {
+  C.init();
+  const S = C.get();
+  S.perks = { uebergangsgeld: true, stempelfest: true, fristgerecht: true, haushaltsautomatik: true, bestandsschutz1: true, formularkunde: true, personalautomatik: true, vertretungsplan: true };
+  S.era = 2; S.gens.schreiber = 20; S.gens.siegel = 10;
+  C.recalc();
+  const n0 = C.totalGens();
+  const r = C.applyOffline(4 * 3600);
+  assert.ok(C.totalGens() > n0 + 20, 'Personalautomatik hat offline gekauft');
+  assert.ok(r.gain > 0);
+});
+test('Neuerer Spielstand: Speichern gesperrt', () => {
+  for (const k in mem) delete mem[k];
+  mem[C.SAVE_KEY] = JSON.stringify({ v: 99, totalAkten: 5, gens: {} });
+  C.readOnly = false; C.futureLock = false;
+  C.load();
+  assert.equal(C.save(), false);
+  assert.equal(JSON.parse(mem[C.SAVE_KEY]).v, 99, 'Original unberührt');
+  C.readOnly = false; C.futureLock = false;
+});
+test('Bereinigung: Projektstufe, Mitzeichnungsfolge, leere Formulare, Kaufmenge', () => {
+  const st = C.fromObject({ projects: { flughafen: { stage: 99, delays: 50 } }, korb: { doc: { r: 1, need: 3, prog: 0, title: 'x', seq: [1, 9, 2] } },
+    forms: { f0: 0, f1: 2 }, settings: { buyAmt: 'max', sfxVol: 7 } });
+  assert.equal(st.projects.flughafen.stage, 5);
+  assert.equal(st.projects.flughafen.delays, 7);
+  assert.equal(st.korb.doc, null);
+  assert.deepEqual(st.forms, { f1: 2 });
+  assert.equal(st.settings.buyAmt, 'max');
+  assert.equal(st.settings.sfxVol, 1);
+});
+test('Novellen erst nach allen Paragrafen, setzen bei Reform zurück', () => {
+  C.init();
+  const S = C.get();
+  S.vor = 1e12;
+  assert.equal(C.buyNovelle(), false);
+  for (const p of D.PARAS) S.paras[p.id] = true;
+  C.recalc();
+  const before = C.M.staticG;
+  assert.ok(C.buyNovelle());
+  assert.ok(C.M.staticG > before * 1.09);
+  S.totalAkten = 1e14; C.recalc();
+  C.reform('zentral');
+  assert.equal(S.novelle, 0);
 });
 
 /* ---------- Langlauf ohne NaN ---------- */

@@ -87,10 +87,21 @@
     if (!ok('stamp', 0.025)) return;
     const t = ctx.currentTime;
     const heavy = kind !== 'eingang' && kind !== 'auto';
-    // Holz-Rumms
-    tone(heavy ? 140 : 190, t, 0.12, 'sine', heavy ? 0.9 : 0.55, sfxBus, { slide: heavy ? 45 : 70, d: 0.05, s: 0.05, r: 0.08 });
-    noise(t, 0.05, heavy ? 0.5 : 0.3, 'lowpass', 900, 0.7);
-    noise(t + 0.004, 0.025, heavy ? 0.25 : 0.18, 'bandpass', 3200, 2);
+    if (era >= 7) {
+      // Digitaler Stempel: Klick und Bestätigungston
+      tone(heavy ? 880 : 1320, t, 0.05, 'sine', heavy ? 0.22 : 0.14, sfxBus, { d: 0.02, s: 0.02, r: 0.03 });
+      tone(heavy ? 1760 : 2640, t + 0.04, 0.05, 'sine', heavy ? 0.12 : 0.07, sfxBus, { d: 0.02, s: 0.01, r: 0.03 });
+      noise(t, 0.015, 0.1, 'highpass', 6000, 0.7);
+    } else if (era === 0) {
+      // Griffel in feuchten Ton: dumpf
+      tone(heavy ? 110 : 150, t, 0.14, 'sine', heavy ? 0.8 : 0.5, sfxBus, { slide: 40, d: 0.06, s: 0.04, r: 0.08 });
+      noise(t, 0.08, heavy ? 0.35 : 0.22, 'lowpass', 500, 0.8);
+    } else {
+      // Holz-Rumms (ab der Kaiserzeit mit metallischem Anschlag)
+      tone(heavy ? 140 : 190, t, 0.12, 'sine', heavy ? 0.9 : 0.55, sfxBus, { slide: heavy ? 45 : 70, d: 0.05, s: 0.05, r: 0.08 });
+      noise(t, 0.05, heavy ? 0.5 : 0.3, 'lowpass', 900, 0.7);
+      noise(t + 0.004, 0.025, heavy ? 0.25 : 0.18, 'bandpass', era >= 4 ? 4200 : 3200, era >= 4 ? 6 : 2);
+    }
     if (kind === 'correct') {
       const scale = [0, 2, 4, 7, 9, 12, 14, 16, 19, 21, 24];
       const n = scale[Math.min(scale.length - 1, Math.floor((flow || 0) / 4))];

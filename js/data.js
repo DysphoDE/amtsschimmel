@@ -14,7 +14,7 @@
       text: 'Rom baut ein Staatsarchiv aus Marmor. Wer Bürger ist, steht im Census; wer nicht drinsteht, existiert nicht. Zum ersten Mal gibt es Zuständigkeiten – und damit die Frage, wer nicht zuständig ist.' },
     { id: 'mittelalter', name: 'Kanzlei', place: 'Mittelalter', year: '1250', date: 'Anno Domini 1250', at: 6e4, ressorts: 3,
       text: 'Kanzlisten führen Urkundenbücher, das Siegel ersetzt die Unterschrift. Eilboten reiten durchs Land – mit Fristen, die man im Kerzenschein verpasst.' },
-    { id: 'preussen', name: 'Preußische Aktenordnung', place: 'Preußen', year: '1800', date: '1. Oct. 1800', at: 8e6, ressorts: 3,
+    { id: 'preussen', name: 'Preußische Aktenordnung', place: 'Preußen', year: '1800', date: '1. October 1800', at: 8e6, ressorts: 3,
       text: 'Alles hat seine Ordnung, und die Ordnung hat Akten. Der preußische Beamte ist pünktlich, unbestechlich und vollkommen unzuständig für alles, was nicht in seiner Akte steht.' },
     { id: 'kaiserzeit', name: 'Rohrpost & Schreibmaschine', place: 'Kaiserzeit', year: '1900', date: '1. Okt. 1900', at: 1.5e9, ressorts: 4,
       text: 'Durch die Wände zischen Rohrpostbüchsen, in den Schreibstuben klappern Maschinen. Formulare werden gedruckt – zum ersten Mal kann man sie falsch ausfüllen.' },
@@ -95,6 +95,10 @@
       desc: 'Tagt in 190 Sprachen gleichzeitig. Protokoll folgt in 190 Jahren.' },
   ];
 
+  // Grammatisches Geschlecht für Texte wie „dein erster Kopierer“ / „deine erste Amtsstube“ / „dein erstes Faxgerät“
+  const GENUS = { tabularium: 'n', amtsstube: 'f', registratur: 'f', rohrpost: 'f', schreibstube: 'f', fax: 'n', fachverfahren: 'n', eakte: 'f', weltamt: 'n' };
+  D.GENS.forEach((g) => { g.genus = GENUS[g.id] || 'm'; });
+  D.erste = (g, cap) => { const w = { m: 'erster', f: 'erste', n: 'erstes' }[g.genus || 'm']; return (cap ? w[0].toUpperCase() + w.slice(1) : w) + ' ' + g.name; };
   D.GEN = {}; D.GENS.forEach((g, i) => { g.idx = i; D.GEN[g.id] = g; });
   D.GREM = {}; D.GREMIEN.forEach((g, i) => { g.idx = i; D.GREM[g.id] = g; });
 
@@ -148,7 +152,7 @@
     ['syn_bote', 'Botengang zum Tabularium', 'tabularium', 'bote', 0.02, 1, 'Wer Akten bringt, braucht Regale.'],
     ['syn_siegel', 'Siegelpflicht', 'kanzlist', 'siegel', 0.01, 2, 'Keine Urkunde ohne Siegel – und Siegel gibt es reichlich.'],
     ['syn_stube', 'Schalterstunden', 'amtsstube', 'bote', 0.01, 2, 'Die Boten bringen die Kundschaft gleich mit.'],
-    ['syn_reg', 'Registraturplan', 'registratur', 'kanzlist', 0.01, 3, 'Jeder Kanzlist bekommt eine eigene Hängemappe.'],
+    ['syn_reg', 'Ablageordnung', 'registratur', 'kanzlist', 0.01, 3, 'Jeder Kanzlist bekommt eine eigene Hängemappe.'],
     ['syn_dienstweg', 'Dienstweg', 'sekretaer', 'amtsstube', 0.01, 3, 'Alles muss über den Tisch des Sekretärs.'],
     ['syn_rohr', 'Rohrpostanschluss', 'rohrpost', 'registratur', 0.01, 4, 'Jede Registratur bekommt ihr eigenes Rohr.'],
     ['syn_diktat', 'Diktat', 'schreibstube', 'sekretaer', 0.01, 4, '„Fräulein, zum Diktat!“ – „Ich bin Oberinspektorin.“'],
@@ -157,7 +161,7 @@
     ['syn_stapel', 'Stapelverarbeitung', 'grossrechner', 'kopierer', 0.01, 6, 'Lochkarten werden jetzt kopiert, nicht gestanzt.'],
     ['syn_terminal', 'Terminalanschluss', 'terminal', 'grossrechner', 0.01, 6, 'Jedes Terminal darf jetzt auch rechnen. Ein bisschen.'],
     ['syn_schnitt', 'Schnittstelle', 'fachverfahren', 'terminal', 0.01, 7, 'Die Schnittstelle zur Schnittstelle läuft.'],
-    ['syn_scan', 'Scanstraße', 'eakte', 'kopierer', 0.01, 7, 'Kopierer scannen jetzt – nach dem Kopieren.'],
+    ['syn_scan', 'Scan-Offensive', 'eakte', 'kopierer', 0.01, 7, 'Kopierer scannen jetzt – nach dem Kopieren.'],
     ['syn_training', 'Trainingsdaten', 'ki', 'eakte', 0.01, 8, 'Jede E-Akte ist ein Lehrbuch für die KI.'],
     ['syn_planet', 'Planetare Ablage', 'weltamt', 'ki', 0.01, 9, 'Die KI sortiert, das Weltamt archiviert.'],
   ];
@@ -211,30 +215,30 @@
   S('ei2', 'Rote Wiedervorlagemappe', 4, 20, 'EILT-Fristen +4 Sekunden.', [{ t: 'eiltTime', a: 4 }], 'Rot heißt dringend. Dunkelrot heißt sehr dringend.', { eilt: 15 });
   S('ei3', 'Fristenkalender', 6, 2, 'EILT-Vorgänge erscheinen 50 % häufiger und bringen 25 % mehr.', [{ t: 'eiltFreq', x: 1.5 }, { t: 'eilt', x: 1.25 }], 'Mit Wochenenden, Feiertagen und Brückentagen.', { eilt: 40 });
 
-  S('wi1', 'Widerspruchsstelle', 2, 13, 'Widersprüche bringen 50 % mehr.', [{ t: 'wider', x: 1.5 }], 'Wer widerspricht, hat zwei Formulare mehr gewonnen.', { wider: 5 });
-  S('wi2', 'Abhilfebescheid', 5, 6, 'Widersprüche bringen 50 % mehr.', [{ t: 'wider', x: 1.5 }], 'Dem Widerspruch wird abgeholfen. Irgendwann.', { wider: 25 });
+  S('wi1', 'Widerspruchsstelle', 2, 13, 'Widersprüche bringen 25 % mehr.', [{ t: 'wider', x: 1.25 }], 'Wer widerspricht, hat zwei Formulare mehr gewonnen.', { wider: 5 });
+  S('wi2', 'Abhilfebescheid', 5, 6, 'Widersprüche bringen 25 % mehr.', [{ t: 'wider', x: 1.25 }], 'Dem Widerspruch wird abgeholfen. Irgendwann.', { wider: 25 });
 
   S('fo1', 'Formularschrank', 2, 16, 'Formulare werden 25 % häufiger gefunden.', [{ t: 'formRate', x: 1.25 }], 'Drei Türen, siebzehn Fächer, ein Schlüssel (verloren).', { forms: 3 });
   S('fo2', 'Vordruckverlag', 4, 13, 'Formulare werden 25 % häufiger gefunden.', [{ t: 'formRate', x: 1.25 }], 'Druckt Vordrucke für Vordrucke.', { forms: 12 });
 
   S('sc1', 'Hafer am Fenstersims', 1, 16, 'Der Amtsschimmel kommt 15 % häufiger vorbei.', [{ t: 'schimFreq', x: 1.15 }], 'Ein Pferd kommt selten allein – meistens wegen Hafer.', { schimmel: 1 });
-  S('sc2', 'Pferdeflüsterer', 3, 50, 'Amtsschimmel-Effekte halten 30 % länger.', [{ t: 'schimDur', x: 1.3 }], 'Flüstert dem Schimmel die Dienstvorschrift ins Ohr.', { schimmel: 5 });
+  S('sc2', 'Striegel und Bürste', 3, 50, 'Amtsschimmel-Effekte halten 30 % länger.', [{ t: 'schimDur', x: 1.3 }], 'Ein gepflegter Schimmel bleibt länger gut gelaunt.', { schimmel: 5 });
   S('sc3', 'Zaumzeug mit Dienstsiegel', 5, 10, 'Der Amtsschimmel bleibt 5 Sekunden länger und kommt 15 % häufiger.', [{ t: 'schimLife', a: 5 }, { t: 'schimFreq', x: 1.15 }], 'Ordnungsgemäß gesiegelt, damit er nicht durchgeht.', { schimmel: 15 });
   S('sc4', 'Stall im Innenhof', 7, 3, 'Amtsschimmel-Effekte halten 30 % länger.', [{ t: 'schimDur', x: 1.3 }], 'Baugenehmigung liegt vor (vorläufig).', { schimmel: 40 });
 
-  S('gr1', 'Tagesordnung', 2, 3, 'Gremien beschließen 50 % mehr Vorschriften.', [{ t: 'v', x: 1.5 }], 'TOP 1: Genehmigung der Tagesordnung.', { grem: 5 });
-  S('gr2', 'Geschäftsordnung', 4, 7, 'Gremien beschließen doppelt so viele Vorschriften.', [{ t: 'v', x: 2 }], 'Regelt, wie geregelt wird.', { grem: 20 });
+  S('gr1', 'Sitzungskalender', 2, 3, 'Gremien beschließen 50 % mehr Vorschriften.', [{ t: 'v', x: 1.5 }], 'Jeden Dienstag, außer an Dienstagen.', { grem: 5 });
+  S('gr2', 'Sitzungsgeld', 4, 7, 'Gremien beschließen doppelt so viele Vorschriften.', [{ t: 'v', x: 2 }], 'Plötzlich sind alle Mitglieder pünktlich.', { grem: 20 });
   S('gr3', 'Protokollführung', 6, 3, 'Gremien beschließen doppelt so viele Vorschriften.', [{ t: 'v', x: 2 }], 'Was nicht im Protokoll steht, wurde nicht beschlossen. Was drinsteht, auch nicht unbedingt.', { grem: 40 });
   S('gr4', 'Videokonferenz', 7, 2, 'Gremien beschließen doppelt so viele Vorschriften.', [{ t: 'v', x: 2 }], '„Sie sind stummgeschaltet.“ – „Ich weiß.“', { grem: 60 });
   S('gr5', 'Hologremium', 9, 3, 'Gremien beschließen dreimal so viele Vorschriften.', [{ t: 'v', x: 3 }], 'Alle Mitglieder gleichzeitig anwesend – als Projektion.', { grem: 90 });
 
-  S('gl1', 'Amtsblatt', 1, 6, 'Gesamtproduktion +5 %.', [{ t: 'prodAdd', a: 0.05 }], 'Erscheint wöchentlich, gelesen von dreizehn Menschen.', null);
-  S('gl2', 'Kaffeeküche', 3, 4, 'Gesamtproduktion +10 %.', [{ t: 'prodAdd', a: 0.1 }], 'Mit Kaffeekasse und Zettel „Wer hat meinen Joghurt gegessen?“', null);
-  S('gl3', 'Betriebsausflug', 5, 2, 'Gesamtproduktion +15 %.', [{ t: 'prodAdd', a: 0.15 }], 'Ins Aktenmuseum. Mit Busfahrt und Kartoffelsalat.', null);
-  S('gl4', 'Gleitzeit', 7, 2, 'Gesamtproduktion +20 %.', [{ t: 'prodAdd', a: 0.2 }], 'Kernarbeitszeit 9:30 bis 9:45 Uhr.', null);
-  S('gl5', 'Homeoffice-Regelung', 8, 2, 'Gesamtproduktion +25 %.', [{ t: 'prodAdd', a: 0.25 }], 'Drei Tage Homeoffice, zwei Tage Präsenz, einer Antrag auf Homeoffice.', null);
+  S('gl1', 'Amtsblatt', 1, 6, 'Gesamtproduktion +3 %.', [{ t: 'prod', x: 1.03 }], 'Erscheint wöchentlich, gelesen von dreizehn Menschen.', null);
+  S('gl2', 'Kaffeeküche', 3, 4, 'Gesamtproduktion +4 %.', [{ t: 'prod', x: 1.04 }], 'Mit Kaffeekasse und Zettel „Wer hat meinen Joghurt gegessen?“', null);
+  S('gl3', 'Betriebsausflug', 5, 2, 'Gesamtproduktion +5 %.', [{ t: 'prod', x: 1.05 }], 'Ins Aktenmuseum. Mit Busfahrt und Kartoffelsalat.', null);
+  S('gl4', 'Gleitzeit', 7, 2, 'Gesamtproduktion +6 %.', [{ t: 'prod', x: 1.06 }], 'Kernarbeitszeit 9:30 bis 9:45 Uhr.', null);
+  S('gl5', 'Homeoffice-Regelung', 8, 2, 'Gesamtproduktion +8 %.', [{ t: 'prod', x: 1.08 }], 'Drei Tage Homeoffice, zwei Tage Präsenz, ein Tag für den Antrag auf Homeoffice.', null);
 
-  S('am1', 'Amtshilfe', 2, 8, 'Gesamtproduktion +0,5 % je Gremium (mit abnehmendem Ertrag).', [{ t: 'perGrem', a: 0.005 }], 'Ein Amt hilft dem anderen. Gegen Rechnung.', { grem: 3 });
+  S('am1', 'Behördenkooperation', 2, 8, 'Gesamtproduktion +0,5 % je Gremium (mit abnehmendem Ertrag).', [{ t: 'perGrem', a: 0.005 }], 'Ein Amt hilft dem anderen. Gegen Rechnung.', { grem: 3 });
   S('am2', 'Ressortübergreifende Arbeitsgruppe', 6, 1, 'Gesamtproduktion +0,5 % je Gremium (mit abnehmendem Ertrag).', [{ t: 'perGrem', a: 0.005 }], 'Alle Ressorts sitzen an einem Tisch. Niemand ist zuständig.', { grem: 30 });
 
   function U_fmt(a) { return String(a).replace('.', ','); }
@@ -256,7 +260,7 @@
       ],
       delays: 7, delayX: 1.7,
       delayNames: ['Brandschutz-Nachbesserung', 'Rolltreppen zu kurz', 'Entrauchungsanlage entraucht nicht', 'Kabel falsch verlegt', 'Gutachten zum Gutachten', 'Eröffnungsfeier abgesagt', 'Fluglärm-Klage der Bürokrötenkolonie'],
-      reward: 'Produktion ×1,5 in diesem Durchgang, eine besondere Urkunde und ein seltenes Formular.',
+      reward: 'Produktion ×1,5 in diesem Durchgang, eine Urkunde und ein legendäres Formular.',
       fx: [{ t: 'prod', x: 1.5 }],
     },
     {
