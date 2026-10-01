@@ -131,7 +131,7 @@ body.no-ticker .ticker { display: none; }
   container-type: inline-size; container-name: desk;
 }
 body[data-era="1"] .col-desk, body[data-era="7"] .col-desk { color: var(--ink); }
-.counter { text-align: center; padding: 4px 8px 6px; text-shadow: 0 1px 2px rgba(0,0,0,.45); user-select: none; }
+.counter { text-align: center; padding: 4px 8px 6px; text-shadow: 0 1px 2px rgba(0,0,0,.45); user-select: none; flex: none; }
 body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 .counter-main { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .counter-icon { width: 34px; height: 34px; }
@@ -155,7 +155,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .buff.bad { background: #f3d6d0; }
 .buff i { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--red); }
 
-.desk-surface { position: relative; width: 100%; flex: 1; min-height: 250px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.desk-surface { position: relative; width: 100%; flex: 1 1 0; min-height: 190px; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .tray { width: 74px; height: 92px; position: relative; flex: none; align-self: center; opacity: .95; }
 .tray::before { content: ''; position: absolute; inset: 30px 0 0; border: 3px solid rgba(40,40,46,.75); border-top: none; border-radius: 0 0 8px 8px; background: repeating-linear-gradient(90deg, rgba(40,40,46,.55) 0 2px, transparent 2px 9px); }
 .tray-papers { position: absolute; left: 7px; right: 7px; bottom: 6px; height: 64px; }
@@ -165,7 +165,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .tray-count:empty { display: none; }
 
 /* ---------- Die Akte ---------- */
-.doc-slot { position: relative; width: min(300px, 100%); height: clamp(250px, 38vh, 330px); flex: none; perspective: 900px; }
+.doc-slot { position: relative; width: min(300px, 100%); height: min(330px, 100%); min-height: 190px; flex: none; perspective: 900px; }
 @container desk (max-width: 500px) { .tray { display: none; } }
 .doc {
   position: absolute; inset: 0; border-radius: 4px; padding: 16px 18px 14px;
@@ -289,7 +289,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .doc.e9 .imprint { mix-blend-mode: screen; color: rgba(255,200,120,.95); }
 
 /* ---------- Stempelleiste ---------- */
-.stampbar { display: flex; justify-content: center; gap: 6px; flex-wrap: nowrap; margin-top: 6px; min-height: 8px; width: 100%; max-width: 480px; }
+.stampbar { display: flex; justify-content: center; gap: 6px; flex-wrap: nowrap; margin-top: 6px; min-height: 8px; width: 100%; max-width: 480px; flex: none; }
 .stamp-btn {
   position: relative; flex: 0 1 74px; min-width: 46px; height: 84px; border: none; background: none; padding: 0; color: var(--ink);
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; touch-action: manipulation;
@@ -330,7 +330,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .mascot-head:hover { transform: rotate(-6deg) scale(1.05); }
 .mascot-bubble {
   pointer-events: auto; background: var(--paper); color: var(--ink); border-radius: 12px 12px 12px 3px; padding: 8px 12px; font-size: 13px;
-  box-shadow: var(--shadow); flex: 1; margin-bottom: 12px; position: relative; animation: pop .25s; text-shadow: none;
+  box-shadow: var(--shadow); flex: 1; margin-bottom: 12px; position: relative; animation: pop .25s; text-shadow: none; max-height: 30vh; overflow-y: auto;
 }
 .mascot-bubble button { margin-top: 5px; }
 .mascot-bubble:not([hidden]) ~ * { display: none; }
@@ -660,7 +660,7 @@ textarea.save-box { width: 100%; min-height: 90px; font: 12px var(--font-mono); 
   .counter .num { font-size: 34px; }
   .counter-icon { width: 28px; height: 28px; }
   .tray { display: none; }
-  .doc-slot { width: min(300px, 82vw); height: min(310px, 42vh); }
+  .doc-slot { width: min(300px, 82vw); }
   .doc-title { font-size: 16.5px; }
   .doc-lines { display: none; }
   .desk-surface { min-height: 0; }
@@ -686,9 +686,18 @@ textarea.save-box { width: 100%; min-height: 90px; font: 12px var(--font-mono); 
   .lb-grid, .perk-cols { grid-template-columns: 1fr; }
   .mobile-more { display: grid !important; }
 }
-@media (max-width: 759px) and (max-height: 640px) {
-  .counter-word, .desk-hint { display: none; }
-  .doc-slot { height: 230px; }
+@media (max-height: 820px) {
+  .counter { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 8px; padding-bottom: 2px; }
+  .counter-sub, .counter-v { flex-basis: 100%; }
+  .counter .num { font-size: 32px; }
+  .counter-icon { width: 26px; height: 26px; }
+  .counter-word { margin-top: 0; }
+  .counter-v small { display: none; }
+  .buffs { min-height: 0; }
+  .doc { padding: 12px 14px 10px; gap: 4px; }
+  .doc-title { font-size: 16px; }
+  .doc-lines { display: none; }
+  .doc-band { margin: -12px -14px 2px; }
 }
 .mobile-more { display: none; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
 

@@ -142,7 +142,7 @@ body.no-ticker .ticker { display: none; }
   container-type: inline-size; container-name: desk;
 }
 body[data-era="1"] .col-desk, body[data-era="7"] .col-desk { color: var(--ink); }
-.counter { text-align: center; padding: 4px 8px 6px; text-shadow: 0 1px 2px rgba(0,0,0,.45); user-select: none; }
+.counter { text-align: center; padding: 4px 8px 6px; text-shadow: 0 1px 2px rgba(0,0,0,.45); user-select: none; flex: none; }
 body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 rgba(255,255,255,.6); }
 .counter-main { display: flex; align-items: center; justify-content: center; gap: 8px; }
 .counter-icon { width: 34px; height: 34px; }
@@ -166,7 +166,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .buff.bad { background: #f3d6d0; }
 .buff i { position: absolute; left: 0; bottom: 0; height: 2px; background: var(--red); }
 
-.desk-surface { position: relative; width: 100%; flex: 1; min-height: 250px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+.desk-surface { position: relative; width: 100%; flex: 1 1 0; min-height: 190px; display: flex; align-items: center; justify-content: center; gap: 10px; }
 .tray { width: 74px; height: 92px; position: relative; flex: none; align-self: center; opacity: .95; }
 .tray::before { content: ''; position: absolute; inset: 30px 0 0; border: 3px solid rgba(40,40,46,.75); border-top: none; border-radius: 0 0 8px 8px; background: repeating-linear-gradient(90deg, rgba(40,40,46,.55) 0 2px, transparent 2px 9px); }
 .tray-papers { position: absolute; left: 7px; right: 7px; bottom: 6px; height: 64px; }
@@ -176,7 +176,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .tray-count:empty { display: none; }
 
 /* ---------- Die Akte ---------- */
-.doc-slot { position: relative; width: min(300px, 100%); height: clamp(250px, 38vh, 330px); flex: none; perspective: 900px; }
+.doc-slot { position: relative; width: min(300px, 100%); height: min(330px, 100%); min-height: 190px; flex: none; perspective: 900px; }
 @container desk (max-width: 500px) { .tray { display: none; } }
 .doc {
   position: absolute; inset: 0; border-radius: 4px; padding: 16px 18px 14px;
@@ -300,7 +300,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .doc.e9 .imprint { mix-blend-mode: screen; color: rgba(255,200,120,.95); }
 
 /* ---------- Stempelleiste ---------- */
-.stampbar { display: flex; justify-content: center; gap: 6px; flex-wrap: nowrap; margin-top: 6px; min-height: 8px; width: 100%; max-width: 480px; }
+.stampbar { display: flex; justify-content: center; gap: 6px; flex-wrap: nowrap; margin-top: 6px; min-height: 8px; width: 100%; max-width: 480px; flex: none; }
 .stamp-btn {
   position: relative; flex: 0 1 74px; min-width: 46px; height: 84px; border: none; background: none; padding: 0; color: var(--ink);
   display: flex; flex-direction: column; align-items: center; justify-content: flex-end; touch-action: manipulation;
@@ -341,7 +341,7 @@ body[data-era="1"] .counter, body[data-era="7"] .counter { text-shadow: 0 1px 0 
 .mascot-head:hover { transform: rotate(-6deg) scale(1.05); }
 .mascot-bubble {
   pointer-events: auto; background: var(--paper); color: var(--ink); border-radius: 12px 12px 12px 3px; padding: 8px 12px; font-size: 13px;
-  box-shadow: var(--shadow); flex: 1; margin-bottom: 12px; position: relative; animation: pop .25s; text-shadow: none;
+  box-shadow: var(--shadow); flex: 1; margin-bottom: 12px; position: relative; animation: pop .25s; text-shadow: none; max-height: 30vh; overflow-y: auto;
 }
 .mascot-bubble button { margin-top: 5px; }
 .mascot-bubble:not([hidden]) ~ * { display: none; }
@@ -671,7 +671,7 @@ textarea.save-box { width: 100%; min-height: 90px; font: 12px var(--font-mono); 
   .counter .num { font-size: 34px; }
   .counter-icon { width: 28px; height: 28px; }
   .tray { display: none; }
-  .doc-slot { width: min(300px, 82vw); height: min(310px, 42vh); }
+  .doc-slot { width: min(300px, 82vw); }
   .doc-title { font-size: 16.5px; }
   .doc-lines { display: none; }
   .desk-surface { min-height: 0; }
@@ -697,9 +697,18 @@ textarea.save-box { width: 100%; min-height: 90px; font: 12px var(--font-mono); 
   .lb-grid, .perk-cols { grid-template-columns: 1fr; }
   .mobile-more { display: grid !important; }
 }
-@media (max-width: 759px) and (max-height: 640px) {
-  .counter-word, .desk-hint { display: none; }
-  .doc-slot { height: 230px; }
+@media (max-height: 820px) {
+  .counter { display: flex; flex-wrap: wrap; justify-content: center; align-items: baseline; column-gap: 8px; padding-bottom: 2px; }
+  .counter-sub, .counter-v { flex-basis: 100%; }
+  .counter .num { font-size: 32px; }
+  .counter-icon { width: 26px; height: 26px; }
+  .counter-word { margin-top: 0; }
+  .counter-v small { display: none; }
+  .buffs { min-height: 0; }
+  .doc { padding: 12px 14px 10px; gap: 4px; }
+  .doc-title { font-size: 16px; }
+  .doc-lines { display: none; }
+  .doc-band { margin: -12px -14px 2px; }
 }
 .mobile-more { display: none; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-bottom: 10px; }
 
@@ -1160,20 +1169,20 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
   // Kosten unter 1000 sind Faktoren auf die Epochenschwelle (bzw. 50 Akten in Epoche 0), größere Werte absolut
   const ec = (era, c) => (c >= 1000 ? c : Math.max(50, D.ERAS[era].at) * c);
   const S = (id, name, era, cost, desc, fx, flavor, req) => D.UPGRADES.push({ id, kind: 'misc', name, era, cost: ec(era, cost), desc, fx, flavor, req });
-  S('st1', 'Stempelkissen', 0, 60, 'Eingangsstempel ×2.', [{ t: 'click', x: 2 }], 'Rotes Stempelkissen, frisch getränkt.', { clicks: 20 });
-  S('st2', 'Holzgriff', 0, 600, 'Eingangsstempel ×2.', [{ t: 'click', x: 2 }], 'Liegt gut in der Hand. Sehr gut.', { clicks: 150 });
-  S('st3', 'Siegelring', 2, 7, 'Eingangsstempel bringen zusätzlich 0,1 % deiner Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Der Ring der Macht, Kanzleiausführung.', { clicks: 500 });
-  S('st4', 'Gummistempel', 4, 6, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Erfunden 1866. Die Verwaltung war nie wieder dieselbe.', { clicks: 1500 });
-  S('st5', 'Selbstfärbender Stempel', 5, 5, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Färbt sich selbst. Und den Schreibtisch.', { clicks: 3000 });
-  S('st6', 'Datumsstempel', 6, 5, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Zeigt zuverlässig das Datum von gestern.', { clicks: 5000 });
-  S('st7', 'Digitaler Stempel', 7, 5, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Ein Stempel-Icon. Rechtlich umstritten, optisch überzeugend.', { clicks: 8000 });
-  S('st8', 'Qualifizierte Signatur', 8, 5, 'Eingangsstempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Benötigt Kartenleser, PIN, PUK und einen ruhigen Puls.', { clicks: 12000 });
-  S('st9', 'Quantenstempel', 9, 5, 'Eingangsstempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Stempelt alle Akten gleichzeitig – solange keiner hinsieht.', { clicks: 18000 });
+  S('st1', 'Stempelkissen', 0, 60, 'Alle Stempel ×1,5.', [{ t: 'click', x: 1.5 }], 'Rotes Stempelkissen, frisch getränkt.', { clicks: 20 });
+  S('st2', 'Holzgriff', 0, 600, 'Alle Stempel ×1,5.', [{ t: 'click', x: 1.5 }], 'Liegt gut in der Hand. Sehr gut.', { clicks: 150 });
+  S('st3', 'Siegelring', 2, 7, 'Jeder Stempel bringt zusätzlich 0,1 % deiner Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Der Ring der Macht, Kanzleiausführung.', { clicks: 500 });
+  S('st4', 'Gummistempel', 4, 6, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Erfunden 1866. Die Verwaltung war nie wieder dieselbe.', { clicks: 1500 });
+  S('st5', 'Selbstfärbender Stempel', 5, 5, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Färbt sich selbst. Und den Schreibtisch.', { clicks: 3000 });
+  S('st6', 'Datumsstempel', 6, 5, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Zeigt zuverlässig das Datum von gestern.', { clicks: 5000 });
+  S('st7', 'Digitaler Stempel', 7, 5, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Ein Stempel-Icon. Rechtlich umstritten, optisch überzeugend.', { clicks: 8000 });
+  S('st8', 'Qualifizierte Signatur', 8, 5, 'Stempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Benötigt Kartenleser, PIN, PUK und einen ruhigen Puls.', { clicks: 12000 });
+  S('st9', 'Quantenstempel', 9, 5, 'Stempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Stempelt alle Akten gleichzeitig – solange keiner hinsieht.', { clicks: 18000 });
 
-  S('zs1', 'Zuständigkeitsverzeichnis', 1, 5, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Eine Wachstafel mit allen Zuständigkeiten. Fast allen.', { correct: 25 });
-  S('zs2', 'Geschäftsverteilungsplan', 3, 6, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Achtzig Seiten, drei Anlagen, ein Organigramm in Farbe.', { correct: 300 });
-  S('zs3', 'Organigramm an der Wand', 5, 5, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Mit Pfeilen. Viele Pfeile.', { correct: 1200 });
-  S('zs4', 'Zuständigkeitsfinder', 7, 5, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Online! Antwortet auf alles mit „Bitte wenden Sie sich an Ihre zuständige Stelle“.', { correct: 4000 });
+  S('zs1', 'Zuständigkeitsverzeichnis', 1, 5, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Eine Wachstafel mit allen Zuständigkeiten. Fast allen.', { correct: 25 });
+  S('zs2', 'Geschäftsverteilungsplan', 3, 6, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Achtzig Seiten, drei Anlagen, ein Organigramm in Farbe.', { correct: 300 });
+  S('zs3', 'Organigramm an der Wand', 5, 5, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Mit Pfeilen. Viele Pfeile.', { correct: 1200 });
+  S('zs4', 'Zuständigkeitsfinder', 7, 5, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Online! Antwortet auf alles mit „Bitte wenden Sie sich an Ihre zuständige Stelle“.', { correct: 4000 });
 
   S('fl1', 'Bürostuhl mit Armlehne', 1, 12, 'Arbeitsfluss-Maximum +10.', [{ t: 'flowMax', a: 10 }], 'Endlich Halt beim Stempeln.', { flow: 10 });
   S('fl2', 'Ergonomische Stempelhaltung', 3, 25, 'Arbeitsfluss-Maximum +10.', [{ t: 'flowMax', a: 10 }], 'Seminar „Rückengerecht stempeln“, zwei Tage, mit Zertifikat.', { flow: 20 });
@@ -1266,8 +1275,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
   const P = (no, teil, name, cost, desc, fx) => ({ id: 'p' + no, no, teil, name, cost, desc, fx });
   D.PARAS = [
     P(1, 'I', 'Geltungsbereich', 1, 'Gesamtproduktion +5 %.', [{ t: 'prod', x: 1.05 }]),
-    P(2, 'I', 'Begriffsbestimmungen', 4, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }]),
-    P(3, 'I', 'Zuständigkeit', 12, 'Der zuständige Stempel wird hervorgehoben. Ressortstempel ×1,1.', [{ t: 'assist' }, { t: 'stamp', x: 1.1 }]),
+    P(2, 'I', 'Begriffsbestimmungen', 4, 'Ressortstempel ×1,15.', [{ t: 'stamp', x: 1.15 }]),
+    P(3, 'I', 'Zuständigkeit', 12, 'Der zuständige Stempel wird hervorgehoben. Ressortstempel ×1,05.', [{ t: 'assist' }, { t: 'stamp', x: 1.05 }]),
     P(4, 'I', 'Amtshilfe', 40, 'Gesamtproduktion +1 % je Gremium (mit abnehmendem Ertrag).', [{ t: 'perGrem', a: 0.01 }]),
     P(5, 'I', 'Verwaltungsvorschrift', 150, 'Gesamtproduktion +10 %.', [{ t: 'prod', x: 1.1 }]),
     P(6, 'I', 'Ermessen', 600, 'Amtsschimmel-Effekte halten 25 % länger.', [{ t: 'schimDur', x: 1.25 }]),
@@ -1285,15 +1294,15 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     P(17, 'II', 'Digitalpakt', 50000, 'Technik ×2.', [{ t: 'cat', cat: 'technik', x: 2 }]),
     P(18, 'II', 'Alimentationsprinzip', 350000, 'Alle Generatoren ×2.', [{ t: 'cat', cat: 'all', x: 2 }]),
 
-    P(19, 'III', 'Formvorschrift', 2, 'Eingangsstempel ×1,5.', [{ t: 'click', x: 1.5 }]),
+    P(19, 'III', 'Formvorschrift', 2, 'Alle Stempel ×1,25.', [{ t: 'click', x: 1.25 }]),
     P(20, 'III', 'Fristenregelung', 10, 'EILT-Fristen +3 Sekunden, EILT-Ertrag +25 %.', [{ t: 'eiltTime', a: 3 }, { t: 'eilt', x: 1.25 }]),
     P(21, 'III', 'Vertretungsregel', 25, 'Wenn du 3 Sekunden nicht stempelst, stempelt die Vertretung (1 Vorgang alle 2 Sekunden).', [{ t: 'auto', a: 0.5 }]),
     P(22, 'III', 'Rechtsbehelfsbelehrung', 100, 'Widersprüche bringen 25 % mehr.', [{ t: 'wider', x: 1.25 }]),
     P(23, 'III', 'Beschleunigungsgebot', 400, 'Arbeitsfluss-Maximum +10.', [{ t: 'flowMax', a: 10 }]),
     P(24, 'III', 'Aktenführungspflicht', 1600, 'Formulare werden 25 % häufiger gefunden.', [{ t: 'formRate', x: 1.25 }]),
-    P(25, 'III', 'Stempelordnung', 7000, 'Eingangsstempel bringen zusätzlich 0,2 % der Produktion.', [{ t: 'clickPct', a: 0.002 }]),
+    P(25, 'III', 'Stempelordnung', 7000, 'Jeder Stempel bringt zusätzlich 0,2 % der Produktion.', [{ t: 'clickPct', a: 0.002 }]),
     P(26, 'III', 'Verfahrensbeschleunigung', 35000, 'Die Vertretung stempelt einen Vorgang mehr pro Sekunde.', [{ t: 'auto', a: 1 }]),
-    P(27, 'III', 'Genehmigungsfiktion', 200000, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }]),
+    P(27, 'III', 'Genehmigungsfiktion', 200000, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }]),
 
     P(28, 'IV', 'Geschäftsordnung', 3, 'Gremien beschließen 50 % mehr Vorschriften.', [{ t: 'v', x: 1.5 }]),
     P(29, 'IV', 'Tagesordnung', 15, 'Parkinson-Faktor +0,25: Vorschriften vermehren sich schneller.', [{ t: 'parkinson', a: 0.25 }]),
@@ -1334,8 +1343,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       unlock: (S) => S.maxEra >= 3 },
     { id: 'npm', name: 'New Public Management', motto: '„Kennzahlen, Kennzahlen, Kennzahlen.“',
       desc: 'Die Verwaltung als Dienstleistungsunternehmen. Wer schnell und richtig stempelt, wird belohnt – wer nur wartet, nicht.',
-      pro: ['Eingangs- und Ressortstempel ×3', 'Arbeitsfluss-Maximum +20'], con: ['Generatoren ×0,85'],
-      fx: [{ t: 'click', x: 3 }, { t: 'stamp', x: 3 }, { t: 'flowMax', a: 20 }, { t: 'cat', cat: 'all', x: 0.85 }],
+      pro: ['Alle Stempel ×2, Ressortstempel zusätzlich ×1,5', 'Arbeitsfluss-Maximum +20'], con: ['Generatoren ×0,85'],
+      fx: [{ t: 'click', x: 2 }, { t: 'stamp', x: 1.5 }, { t: 'flowMax', a: 20 }, { t: 'cat', cat: 'all', x: 0.85 }],
       unlock: (S) => S.maxEra >= 4 },
     { id: 'entbuer', name: 'Entbürokratisierung', motto: '„Für jede neue Vorschrift fallen zwei weg.“',
       desc: 'Schlanker Staat. Vorschriften vermehren sich nicht mehr von selbst, dafür arbeitet alles schneller und billiger.',
@@ -1368,7 +1377,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
   ];
   const K = (id, lb, name, cost, desc, fx, req) => ({ id, lb, name, cost, desc, fx, req: req || null });
   D.PERKS = [
-    K('stempelfest', 'e', 'Stempelfest', 1, 'Eingangs- und Ressortstempel ×1,5.', [{ t: 'click', x: 1.5 }, { t: 'stamp', x: 1.5 }]),
+    K('stempelfest', 'e', 'Stempelfest', 1, 'Alle Stempel ×1,25, Ressortstempel zusätzlich ×1,25.', [{ t: 'click', x: 1.25 }, { t: 'stamp', x: 1.25 }]),
     K('fristgerecht', 'e', 'Fristgerecht', 2, 'EILT-Fristen +3 Sekunden, EILT-Ertrag +25 %.', [{ t: 'eiltTime', a: 3 }, { t: 'eilt', x: 1.25 }]),
     K('kaffeemaschine', 'e', 'Eigene Kaffeemaschine', 3, 'Amtsschimmel-Effekte halten 25 % länger.', [{ t: 'schimDur', x: 1.25 }]),
     K('vertretungsplan', 'e', 'Vertretungsplan', 4, 'Die Vertretung stempelt von Anfang an (1 Vorgang alle 2 Sekunden), auch ohne § 21.', [{ t: 'auto', a: 0.5 }]),
@@ -1407,7 +1416,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     l: { name: 'legendär', w: 2, bonus: 0.05, cls: 'r-l' },
   };
   D.ORDNER = [
-    { id: 'allg', name: 'Allgemeine Verwaltung', set: 'Eingangsstempel ×1,5', fx: [{ t: 'click', x: 1.5 }] },
+    { id: 'allg', name: 'Allgemeine Verwaltung', set: 'Alle Stempel ×1,25', fx: [{ t: 'click', x: 1.25 }] },
     { id: 'bau', name: 'Bauwesen', set: 'Generatoren und Gremien kosten 5 % weniger', fx: [{ t: 'cost', x: 0.95 }] },
     { id: 'ord', name: 'Ordnung & Sicherheit', set: 'Widersprüche bringen 25 % mehr', fx: [{ t: 'wider', x: 1.25 }] },
     { id: 'fin', name: 'Finanzen', set: 'Haushaltsreste vom Amtsschimmel ×2', fx: [{ t: 'lucky', x: 2 }] },
@@ -1957,6 +1966,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
   const ANL_MIN = 240, ANL_MAX = 480, ANL_WAIT = 90;
   const DJ_DIV = 1e11, DJ_EFFECT = 0.02;
   const OFF_EFF = 0.6, OFF_CAP = 8;
+  const CHAOS = [0.25, 0.5, 0.75, 1, 1.5, 2, 4];
   const MUEDE = 0.15, FIRST_VISIT = 0.05, NOVELLE_X = 1.1, NOVELLE_BASE = 3e6, NOVELLE_GROWTH = 10;
   C.CONST = { GROWTH, GREM_GROWTH, DJ_DIV, DJ_EFFECT, RESSORT_FACTOR, FLOW_STEP, AUTO_SHARE };
 
@@ -2154,10 +2164,12 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     M.parkinson = F.noParkinson ? 1 : 1 + F.parkinson * Math.log10(1 + S.vor);
     M.vps = v * F.vX * M.parkinson;
     // Stempel
-    const pct = F.clickPct * M.sps;
-    M.clickVal = (1 + pct) * F.clickX * clickBuff;
+    // Ein Stempel ist (1 + Anteil der Produktion) × Stempelmultiplikator wert;
+    // der Ressortstempel ist immer ein Vielfaches davon (Ressortfaktor × Ressortmultiplikator × Arbeitsfluss).
+    const stampUnit = (1 + F.clickPct * M.sps) * F.clickX;
+    M.clickVal = stampUnit * clickBuff;
     M.flowMult = 1 + FLOW_STEP * Math.floor(S.korb.flow);
-    M.stampBase = (F.clickX + pct) * RESSORT_FACTOR * F.stampX;
+    M.stampBase = stampUnit * RESSORT_FACTOR * F.stampX;
     M.stampVal = M.stampBase * stampBuff * clickBuff * M.flowMult;
     M.autoVal = M.stampBase * AUTO_SHARE;
   };
@@ -2831,7 +2843,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     // Schilda
     if (M.F.chaos) {
       chaosAcc += dt;
-      if (chaosAcc >= 60 || !S.flags.chaosX) { chaosAcc = 0; S.flags.chaosX = U.pick([0.25, 0.5, 0.75, 1, 1.5, 2, 4]); U.emit('chaos', { x: S.flags.chaosX }); }
+      if (chaosAcc >= 60 || !S.flags.chaosX) { chaosAcc = 0; S.flags.chaosX = U.pick(CHAOS); U.emit('chaos', { x: S.flags.chaosX }); }
     }
     if (S.runAkten >= 1e6 && S.run.clicks === 0 && S.run.correct === 0 && S.stats.reforms > 0) S.flags.reinverwaltung = true;
 
@@ -2858,6 +2870,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     const t = Math.min(sec, C.offlineCapH() * 3600);
     S.buffs = [];
     const oldEra = S.era;
+    const chaosBefore = S.flags.chaosX;
+    if (M.F.chaos) S.flags.chaosX = CHAOS.reduce((a, b) => a + b, 0) / CHAOS.length;
     // In Schritten: Vorschriften wachsen (Parkinson), die Automatik kauft ein, die Vertretung stempelt mit
     const steps = Math.max(1, Math.min(240, Math.ceil(t / 30))), h = t / steps;
     let gain = 0, vGain = 0;
@@ -2872,6 +2886,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       autoBuy();
     }
     S.stats.offlineAkten += gain;
+    if (M.F.chaos) S.flags.chaosX = chaosBefore || 1;
     C.recalc();
     checkAchievements();
     if (S.era > oldEra) U.emit('era', { era: S.era, old: oldEra, offline: true });
@@ -2906,7 +2921,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
   }
   function sanitize(def, src, path) {
     if (MAPS[path]) return src && typeof src === 'object' && !Array.isArray(src) ? cleanMap(src, MAPS[path]) : def;
-    if (def === null) return src && typeof src === 'object' ? src : null;
+    if (def === null) return src && (typeof src === 'object' || typeof src === 'string') ? src : null;
     if (src === undefined || src === null) return def;
     if (Array.isArray(def)) return Array.isArray(src) ? src : def;
     if (typeof def === 'number') return typeof src === 'number' && isFinite(src) ? Math.max(0, src) : def;
@@ -2948,10 +2963,13 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     s.buffs = s.buffs.filter((b) => b && typeof b.end === 'number' && typeof b.x === 'number' && isFinite(b.x) && ['prod', 'click', 'stamp', 'cost', 'gen'].indexOf(b.k) >= 0);
     const K = s.korb;
     if (!Array.isArray(K.pending)) K.pending = [];
-    K.pending = K.pending.filter((p) => p && Number.isInteger(p.r) && p.r >= 0 && p.r < D.RESSORTS.length && typeof p.title === 'string').slice(0, 8);
+    K.pending = K.pending.filter((p) => p && Number.isInteger(p.r) && p.r >= 0 && p.r < D.RESSORTS.length && typeof p.title === 'string' &&
+      typeof p.due === 'number' && isFinite(p.due) && p.need === 2 && typeof p.prog === 'number').slice(0, 8);
+    for (const p of K.pending) p.due = Math.min(p.due, K.docNo + 3);
     const okSeq = (q) => q === undefined || (Array.isArray(q) && q.length === 3 && q.every((x) => Number.isInteger(x) && x >= 0 && x < D.RESSORTS.length));
     const okDoc = (d) => d && Number.isInteger(d.r) && d.r >= -1 && d.r < D.RESSORTS.length && typeof d.need === 'number' && d.need >= 1 && d.need <= 3 && typeof d.prog === 'number' && typeof d.title === 'string' && okSeq(d.seq);
     if (!okDoc(K.doc)) K.doc = null;
+    if (typeof s.anliegen.cur !== 'string') s.anliegen.cur = null;
     if (s.anliegen.cur && !D.ANL[s.anliegen.cur]) s.anliegen.cur = null;
     if (!Array.isArray(s.anliegen.recent)) s.anliegen.recent = [];
     if (['kurz', 'lang', 'wiss'].indexOf(s.settings.numFmt) < 0) s.settings.numFmt = 'kurz';
@@ -2976,6 +2994,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     return JSON.stringify(S);
   };
   C.readOnly = false; // gesetzt, wenn ein neuerer Spielstand liegt oder ein anderer Tab spielt
+  C.onUnlock = null;  // Hook für den Browser (Tab-Sperre übernehmen)
+  C.unlockSave = function () { C.readOnly = false; C.futureLock = false; if (C.onUnlock) C.onUnlock(); };
   C.save = function () {
     if (!C.storage || !S || C.readOnly) return false;
     try {
@@ -3061,6 +3081,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     U.numFmt = S.settings.numFmt;
     C.recalc();
     if (!S.korb.doc) newDoc();
+    C.unlockSave();
+    C.save();
     U.emit('loaded', {});
     return { ok: true };
   };
@@ -3071,6 +3093,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       U.numFmt = S.settings.numFmt;
       C.recalc();
       if (!S.korb.doc) newDoc();
+      C.unlockSave();
+      C.save();
       U.emit('loaded', {});
       return true;
     } catch (e) { return false; }
@@ -3081,7 +3105,8 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     if (settings) S.settings = settings;
     C.recalc();
     newDoc();
-    if (C.storage) { try { C.storage.set(C.SAVE_KEY, C.serialize()); } catch (e) { /* egal */ } }
+    C.unlockSave();
+    C.save();
     U.emit('loaded', {});
   };
 })(typeof window !== 'undefined' ? window : globalThis);
@@ -3613,7 +3638,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     el.innerHTML = docHTML(d);
     el.dataset.no = d.no;
     slot.appendChild(el);
-    if (enter) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('enter')));
+    if (enter) { requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('enter'))); setTimeout(() => el.classList.remove('enter'), 60); }
     docEl = el; curNo = d.no;
     updateDocState();
     return el;
@@ -3796,7 +3821,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     if (which === 'in') {
       const n = S.korb.pending.length;
       $('trayInCount').textContent = n ? n : '';
-      $('trayIn').title = n ? n + ' Widersprüche warten im Eingang' : 'Eingang';
+      $('trayIn').title = n ? (n === 1 ? 'Ein Widerspruch wartet' : n + ' Widersprüche warten') + ' im Eingang' : 'Eingang';
     } else {
       const n = S.run.docs;
       $('trayOutCount').textContent = n ? U.fmt(n) : '';
@@ -4034,7 +4059,11 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     el.innerHTML = ic(o.icon || 'akte') + '<div>' + (o.kicker ? '<div class="t-kicker">' + esc(o.kicker) + '</div>' : '') +
       '<div class="t-title">' + esc(o.title || '') + '</div>' + (o.text ? '<div class="t-text">' + esc(o.text) + '</div>' : '') + '</div>';
     el.addEventListener('click', () => { if (o.onClick) o.onClick(); close(); });
-    if (o.onClick) el.style.cursor = 'pointer';
+    if (o.onClick) {
+      el.style.cursor = 'pointer';
+      el.setAttribute('role', 'button'); el.tabIndex = 0;
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); o.onClick(); close(); } });
+    }
     host.appendChild(el);
     while (host.children.length > 4) host.firstChild.remove();
     const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
@@ -4292,7 +4321,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       h += '<div class="card era-card"><div class="era-meta">' + esc(e.place) + ' · ' + esc(e.year) + ' · Epoche ' + (S.era + 1) + ' von ' + D.ERAS.length + '</div><div class="era-big">' + esc(e.name) + '</div>' +
         '<div class="timeline">' + D.ERAS.map((x, i) => '<i class="' + (i < S.era ? 'on' : i === S.era ? 'now' : '') + '" title="' + esc(x.name) + '"></i>').join('') + '</div>' +
         '<p class="era-text">' + esc(e.text) + '</p><div id="amtNextEra"></div></div>';
-      if (C.djGain() >= 1) h += '<div class="card" style="border-left:5px solid var(--red)"><b>Eine Verwaltungsreform ist möglich.</b><p class="small">Du würdest <b id="amtDjGain"></b> Dienstjahre erhalten. <button class="btn small primary" type="button" data-action="tab" data-tab="reform">Zur Reform</button></p></div>';
+      if (C.djGain() >= 1) h += '<div class="card" style="border-left:5px solid var(--red)"><b>Eine Verwaltungsreform ist möglich.</b><p class="small">Du würdest <b id="amtDjGain"></b> erhalten. <button class="btn small primary" type="button" data-action="tab" data-tab="reform">Zur Reform</button></p></div>';
       h += '<h3 class="sec">' + ic('reform') + 'Leitbild: ' + esc(lb.name) + '</h3><div class="card"><div class="lb-motto" style="font-family:var(--font-serif);font-style:italic">' + esc(lb.motto) + '</div><p class="small">' + esc(lb.desc) + '</p>' +
         (lb.pro.length || lb.con.length ? '<ul class="small" style="margin:0;padding-left:18px">' + lb.pro.map((x) => '<li style="color:#1d5e33">' + esc(x) + '</li>').join('') + lb.con.map((x) => '<li style="color:#7f1d1d">' + esc(x) + '</li>').join('') + '</ul>' : '') +
         (S.streak && lb.id !== 'kameral' ? '<p class="small" style="color:#7f1d1d">Reformmüdigkeit: Produktion ×' + U.dec(C.M.muede, 2) + ', weil du dieses Leitbild ' + (S.streak + 1) + '-mal hintereinander gewählt hast.</p>' : '') + '</div>';
@@ -4319,7 +4348,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       const nx = C.nextEraAt();
       const el = $('amtNextEra');
       if (el) setH(el, nx ? '<div class="small">Nächste Epoche „<b>' + esc(D.ERAS[S.era + 1].name) + '</b>“ ab ' + f(nx) + ' Akten in diesem Durchgang</div><div class="bar"><i style="width:' + U.clamp(Math.log10(1 + S.runAkten) / Math.log10(1 + nx) * 100, 0, 100) + '%"></i></div>' : '<div class="small">Die letzte Epoche ist erreicht.</div>');
-      const dg = $('amtDjGain'); if (dg) setT(dg, f(C.djGain()));
+      const dg = $('amtDjGain'); if (dg) { const g = C.djGain(); setT(dg, f(g) + (g === 1 ? ' Dienstjahr' : ' Dienstjahre')); }
       for (const p of D.PROJECTS) {
         const b = $('fund_' + p.id);
         if (!b) continue;
@@ -4370,7 +4399,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
         h += '</div></div>';
       }
       if (C.novelleOpen()) {
-        h += '<h3 class="sec">' + ic('para') + 'Gesetzesnovellen</h3><div class="card"><p class="small">Das Gesetzbuch ist vollständig – aber eine Verwaltung ist nie fertig. Jede Novelle steigert die Produktion in diesem Durchgang um 10 %. Bisher: <b>' + S.novelle + '</b> Novellen (×' + U.dec(Math.pow(C.NOVELLE_X, S.novelle), 2) + ').</p><button class="btn small blue" type="button" data-action="buyNovelle" id="btnNovelle"></button></div>';
+        h += '<h3 class="sec">' + ic('para') + 'Gesetzesnovellen</h3><div class="card"><p class="small">Das Gesetzbuch ist vollständig – aber eine Verwaltung ist nie fertig. Jede Novelle steigert die Produktion in diesem Durchgang um 10 %. Bisher: <b>' + S.novelle + '</b> ' + (S.novelle === 1 ? 'Novelle' : 'Novellen') + ' (×' + U.dec(Math.pow(C.NOVELLE_X, S.novelle), 2) + ').</p><button class="btn small blue" type="button" data-action="buyNovelle" id="btnNovelle"></button></div>';
       } else if (Object.keys(S.paras).length >= 30) {
         h += '<p class="small muted">Wenn alle 36 Paragrafen in Kraft sind, lassen sich Gesetzesnovellen beschließen.</p>';
       }
@@ -4402,7 +4431,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       const dup = C.duplicateForms();
       let h = '<h2 class="sec">' + ic('album') + 'Formular-Album <span class="right">' + found + ' / ' + D.FORMS.length + '</span></h2>';
       h += '<p class="small muted">Beim Abschließen von Vorgängen tauchen manchmal Formulare auf. Sie bleiben für immer – auch nach einer Reform. Jedes neue Formular steigert die Produktion (zurzeit +' + U.pct(bonus, 1) + '), jeder volle Ordner gibt einen Sonderbonus.</p>';
-      h += '<div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + ic('altpapier') + '<span class="small"><b>' + dup + '</b> doppelte Formulare</span><button class="btn small" type="button" data-action="altpapier"' + (dup ? '' : ' disabled') + '>Dubletten ins Altpapier (+' + f(Math.max(100, C.M.spsBase * 120) * dup) + ' Akten)</button></div>';
+      h += '<div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + ic('altpapier') + '<span class="small"><b>' + dup + '</b> ' + (dup === 1 ? 'doppeltes Formular' : 'doppelte Formulare') + '</span><button class="btn small" type="button" data-action="altpapier"' + (dup ? '' : ' disabled') + '>Dubletten ins Altpapier (+' + f(Math.max(100, C.M.spsBase * 120) * dup) + ' Akten)</button></div>';
       for (const o of D.ORDNER) {
         const list = D.FORMS.filter((x) => x.ordner === o.id);
         const have = list.filter((x) => S.forms[x.id]).length;
@@ -4572,7 +4601,11 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     else if (info.fresh) introModal();
   };
   UI.offlineReport = function (r) {
-    if (document.querySelector('.modal-back')) return;
+    if (!r || !(r.gain > 0)) return;
+    if (document.querySelector('.modal-back, .finale')) {
+      UI.toast({ icon: 'uhr', kicker: 'Während deiner Abwesenheit', title: '+' + f(r.gain) + ' Akten', text: U.fmtTime(r.sec) + ' weg, ' + U.pct(r.eff) + ' Offline-Ertrag.', cls: 'blue', ms: 8000 });
+      return;
+    }
     offlineModal(r);
   };
   function introModal() {
@@ -4588,7 +4621,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     const gain = C.djGain();
     const keepI = C.M.F.flags.keepI, keepAll = C.M.F.flags.keepAll;
     UI.confirm('Verwaltungsreform', '<p>Neues Leitbild: <b>' + esc(l.name) + '</b>' + (S.visited[l.id] ? '' : ' <span class="chip ok">neu: +5 % für immer</span>') + (selLb === S.leitbild && selLb !== 'kameral' ? ' <span class="chip red">Reformmüdigkeit</span>' : '') + '</p>' +
-      '<p>Du erhältst <b>' + f(gain) + ' Dienstjahre</b> und <b>' + f(gain) + ' Pensionspunkte</b>.</p>' +
+      '<p>Du erhältst <b>' + f(gain) + (gain === 1 ? ' Dienstjahr' : ' Dienstjahre') + '</b> und <b>' + f(gain) + (gain === 1 ? ' Pensionspunkt' : ' Pensionspunkte') + '</b>.</p>' +
       '<p class="small">Zurückgesetzt werden: Akten, Personal & Technik, Gremien, Vorschriften, Verbesserungen, ' + (keepAll ? '' : keepI ? 'Paragrafen (außer Teil I), ' : 'Paragrafen, ') + 'Großprojekte und die Epoche.<br>Erhalten bleiben: Dienstjahre, Laufbahn, Formulare, Urkunden und Statistik.</p>', 'Reform durchführen', () => {
       const r = C.reform(selLb);
       if (!r) return;
@@ -4598,7 +4631,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       A.setEra(C.get().era);
       AS.Desk.reset();
       UI.refresh();
-      UI.toast({ icon: 'reform', kicker: 'Verwaltungsreform', title: 'Leitbild: ' + D.LB[r.lb].name, text: '+' + f(r.gain) + ' Dienstjahre. ' + (r.firstVisit ? 'Neues Leitbild: +5 % Produktion für immer!' : ''), cls: 'blue' });
+      UI.toast({ icon: 'reform', kicker: 'Verwaltungsreform', title: 'Leitbild: ' + D.LB[r.lb].name, text: '+' + f(r.gain) + (r.gain === 1 ? ' Dienstjahr. ' : ' Dienstjahre. ') + (r.firstVisit ? 'Neues Leitbild: +5 % Produktion für immer!' : ''), cls: 'blue' });
       AS.Main.save();
     }, true);
   }
@@ -4644,7 +4677,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       A.setEra(e.era);
       document.body.dataset.era = e.era;
       AS.Desk.reset();
-      if (S.maxEra === e.era && !S.flags['eraSeen' + e.era] && e.old !== undefined && D.ERAS[e.old]) { S.flags['eraSeen' + e.era] = true; A.fanfare(); eraModal(e); }
+      if (S.maxEra === e.era && !S.flags['eraSeen' + e.era] && !e.offline) { S.flags['eraSeen' + e.era] = true; A.fanfare(); eraModal(e); }
       else UI.toast({ icon: 'amt', kicker: 'Neue Epoche', title: D.ERAS[e.era].name, text: D.ERAS[e.era].place + ', ' + D.ERAS[e.era].year });
     });
     U.on('ach', (a) => { A.ach(); UI.toast({ icon: 'urkunde', kicker: 'Urkunde verliehen', title: a.name, text: a.desc + ' (+1 % Produktion)', cls: 'gold' }); news.urkunden = true; });
@@ -4658,7 +4691,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     U.on('upgrade', () => A.upgrade());
     U.on('para', () => A.para());
     U.on('perk', () => A.upgrade());
-    U.on('altpapier', (r) => UI.toast({ icon: 'altpapier', kicker: 'Altpapier', title: r.n + ' Dubletten entsorgt', text: '+' + f(r.gain) + ' Akten', cls: 'blue' }));
+    U.on('altpapier', (r) => UI.toast({ icon: 'altpapier', kicker: 'Altpapier', title: r.n + (r.n === 1 ? ' Dublette entsorgt' : ' Dubletten entsorgt'), text: '+' + f(r.gain) + ' Akten', cls: 'blue' }));
     U.on('projDelay', (r) => { A.wrong(); UI.toast({ icon: 'flugzeug', kicker: 'Flughafen Schilda-Süd', title: 'Eröffnung verschoben!', text: 'Grund: ' + r.reason + '. Das Geld ist trotzdem weg.', cls: 'red', ms: 7000 }); });
     U.on('projStage', (r) => { A.upgrade(); UI.toast({ icon: r.id === 'portal' ? 'knopf' : 'flugzeug', kicker: D.PROJ[r.id].name, title: 'Abschnitt abgeschlossen', text: 'Weiter mit: ' + C.projStageName(r.id) }); });
     U.on('projDone', (r) => { if (r.id === 'flughafen') { A.fanfare(); UI.toast({ icon: 'flugzeug', kicker: 'Sensation', title: 'Der Flughafen ist eröffnet!', text: 'Produktion ×1,5 in diesem Durchgang.', cls: 'gold', ms: 8000 }); } });
@@ -4708,7 +4741,10 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
         break;
       }
       case 'ansage': if (!A.ansage()) UI.toast({ icon: 'telefon', title: 'Keine Sprachausgabe', text: 'Dieser Browser kann leider nicht sprechen. Bitte warten Sie trotzdem.' }); break;
-      case 'saveNow': if (AS.Main.save()) UI.toast({ icon: 'haken', title: 'Gespeichert', cls: 'green', ms: 2000 }); break;
+      case 'saveNow':
+        if (AS.Main.save()) UI.toast({ icon: 'haken', title: 'Gespeichert', cls: 'green', ms: 2000 });
+        else UI.toast({ icon: 'widerspruch', title: 'Nicht gespeichert', text: C.readOnly ? (C.futureLock ? 'Das Speichern ist gesperrt, weil ein Spielstand aus einer neueren Version vorliegt.' : 'In einem anderen Tab wird gespielt. Übernimm das Spiel hier, um zu speichern.') : 'Der Browser-Speicher ist nicht verfügbar.', cls: 'red', ms: 6000 });
+        break;
       case 'export': {
         const s = C.exportStr();
         const md = UI.modal('<h2>Spielstand exportieren</h2><p class="small">Kopiere diesen Text und bewahre ihn gut auf. Auf einem anderen Gerät kannst du ihn unter „Importieren“ einfügen.</p><textarea class="save-box" readonly>' + esc(s) + '</textarea><div class="modal-actions"><button class="btn" type="button" data-close>Schließen</button><button class="btn blue" type="button" data-copy autofocus>Kopieren</button></div>');
@@ -4744,7 +4780,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
       }
       case 'restore': UI.confirm('Sicherungskopie wiederherstellen', '<p>Der aktuelle Spielstand wird durch die Sicherungskopie ersetzt.</p>', 'Wiederherstellen', () => { if (C.restoreBackup(el.dataset.key)) { AS.Main.afterLoad(); UI.toast({ icon: 'haken', title: 'Wiederhergestellt', cls: 'green' }); } }); break;
       case 'reset': {
-        const md = UI.modal('<h2>Alles zurücksetzen?</h2><p>Der gesamte Fortschritt geht verloren – inklusive Dienstjahren, Laufbahn, Formularen und Urkunden. Tipp: Exportiere vorher deinen Spielstand.</p><p class="small">Zur Bestätigung bitte <b>LÖSCHEN</b> eintippen:</p><input class="save-box" style="min-height:0" id="resetIn" autocomplete="off" aria-label="Bestätigung"><div class="modal-actions"><button class="btn" type="button" data-close>Abbrechen</button><button class="btn primary" type="button" data-reset disabled>Endgültig zurücksetzen</button></div>');
+        const md = UI.modal('<h2>Alles zurücksetzen?</h2><p>Der gesamte Fortschritt geht verloren – inklusive Dienstjahren, Laufbahn, Formularen und Urkunden. Tipp: Exportiere vorher deinen Spielstand.</p>' + (C.futureLock ? '<p style="color:var(--red)"><b>Achtung:</b> Im Browser liegt ein Spielstand aus einer neueren Version. Er würde dabei ebenfalls überschrieben.</p>' : '') + '<p class="small">Zur Bestätigung bitte <b>LÖSCHEN</b> eintippen:</p><input class="save-box" style="min-height:0" id="resetIn" autocomplete="off" aria-label="Bestätigung"><div class="modal-actions"><button class="btn" type="button" data-close>Abbrechen</button><button class="btn primary" type="button" data-reset disabled>Endgültig zurücksetzen</button></div>');
         const inp = md.el.querySelector('#resetIn'), btn = md.el.querySelector('[data-reset]');
         inp.addEventListener('input', () => { btn.disabled = inp.value.trim().toUpperCase() !== 'LÖSCHEN'; });
         btn.addEventListener('click', () => { md.close(); C.hardReset(); AS.Main.afterLoad(); });
@@ -4830,7 +4866,22 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     remove: (k) => { try { if (lsOk) localStorage.removeItem(k); else delete mem[k]; } catch (e) { /* egal */ } },
   };
 
-  Main.save = function () { return C.save(); };
+  /* Speichern mit Schutz vor fremden, neueren Ständen (anderer oder eingefrorener Tab) */
+  const META = 'amtsschimmel.meta';
+  let lastOwnWrite = 0;
+  const readMeta = () => { try { return JSON.parse(C.storage.get(META) || 'null'); } catch (e) { return null; } };
+  Main.save = function () {
+    if (C.readOnly) return false;
+    const m = readMeta();
+    if (m && m.tab !== tabId && m.t > lastOwnWrite) {
+      // Seit unserem letzten Speichern hat ein anderer Tab gespeichert: nicht überschreiben
+      block('In einem anderen Tab wurde inzwischen weitergespielt.');
+      return false;
+    }
+    const ok = C.save();
+    if (ok) { lastOwnWrite = Date.now(); try { C.storage.set(META, JSON.stringify({ tab: tabId, t: lastOwnWrite })); } catch (e) { /* egal */ } }
+    return ok;
+  };
   Main.afterLoad = function () {
     document.body.dataset.era = C.get().era;
     AS.Audio.setEra(C.get().era);
@@ -4841,9 +4892,12 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
 
   /* ---------- Nur ein Tab speichert ---------- */
   const LOCK = 'amtsschimmel.lock';
-  // Die Tab-ID bleibt beim Neuladen desselben Tabs erhalten (sessionStorage gilt pro Tab)
+  // Die Tab-ID bleibt beim Neuladen desselben Tabs erhalten (sessionStorage gilt pro Tab).
+  // Ein duplizierter Tab erbt den sessionStorage, ist aber kein Neuladen – dann gibt es eine neue ID.
   let tabId = null;
-  try { tabId = sessionStorage.getItem('amtsschimmel.tabid'); } catch (e) { tabId = null; }
+  let isReload = false;
+  try { const nav = performance.getEntriesByType('navigation')[0]; isReload = !!nav && nav.type === 'reload'; } catch (e) { isReload = false; }
+  try { tabId = isReload ? sessionStorage.getItem('amtsschimmel.tabid') : null; } catch (e) { tabId = null; }
   if (!tabId) { tabId = Math.random().toString(36).slice(2); try { sessionStorage.setItem('amtsschimmel.tabid', tabId); } catch (e) { /* egal */ } }
   const releaseLock = () => { const l = readLock(); if (l && l.id === tabId) C.storage.remove(LOCK); };
   let blocked = false, blockModal = null;
@@ -4863,9 +4917,17 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     C.readOnly = !!C.futureLock;
     writeLock();
     const info = C.load(); // den neuesten Stand des anderen Tabs übernehmen
+    lastOwnWrite = Date.now();
     Main.afterLoad();
     if (info.offline) AS.UI.offlineReport(info.offline);
   }
+  // Import, Wiederherstellen oder Zurücksetzen hier: dieser Tab übernimmt bewusst
+  C.onUnlock = function () {
+    if (blockModal) { blockModal.close(); blockModal = null; }
+    blocked = false;
+    writeLock();
+    lastOwnWrite = Date.now() + 1;
+  };
   function heartbeat() {
     const l = readLock();
     if (l && l.id !== tabId && Date.now() - l.t < 12000) {
@@ -4879,6 +4941,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
   // Die Uhrzeit (nicht performance.now) misst auch Standby und Ruhezustand richtig.
   let last = Date.now(), lastFrame = performance.now(), slowAcc = 0, saveAcc = 0, beatAcc = 0;
   const OFFLINE_GAP = 300;
+  let pendingReport = null;
   function logic() {
     const now = Date.now();
     const dt = (now - last) / 1000;
@@ -4887,7 +4950,7 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     if (dt > OFFLINE_GAP) {
       // Längere Lücke (Standby, gedrosselter Hintergrund-Tab): wie Abwesenheit abrechnen
       const r = C.applyOffline(dt);
-      if (r && r.gain > 0 && !document.hidden) AS.UI.offlineReport(r);
+      if (r && r.gain > 0) { if (document.hidden) pendingReport = r; else AS.UI.offlineReport(r); }
     } else C.tick(dt);
     slowAcc += dt; saveAcc += dt; beatAcc += dt;
     if (slowAcc >= 0.25) { slowAcc = 0; try { AS.UI.slow(); AS.Desk.slow(); } catch (e) { console.error(e); } }
@@ -4921,12 +4984,14 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
 
   function registerSW() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol) || /localhost|127\.0\.0\.1/.test(location.hostname)) return;
+    const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js').then((reg) => {
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         if (!nw) return;
         nw.addEventListener('statechange', () => {
-          if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+          // Nur ein echtes Update melden: Beim ersten Besuch gibt es noch keinen steuernden Service Worker
+          if (nw.state === 'installed' && hadController) {
             Main.save();
             AS.UI.toast({ icon: 'stern', kicker: 'Neue Version', title: 'Das Amt wurde modernisiert', text: 'Hier tippen, um die neue Version zu laden.', ms: 20000, onClick: () => { Main.save(); location.reload(); } });
           }
@@ -4944,13 +5009,18 @@ body.reduce-motion .ticker-text { transform: translate(0, -50%) !important; }
     if (!lsOk) AS.UI.toast({ icon: 'widerspruch', kicker: 'Hinweis', title: 'Speichern nicht möglich', text: 'Der Browser erlaubt keinen lokalen Speicher. Exportiere deinen Spielstand regelmäßig.', cls: 'red', ms: 9000 });
     if (prior && prior.id !== tabId && Date.now() - prior.t < 12000) block('Amtsschimmel läuft bereits in einem anderen Tab oder Fenster.');
     else writeLock();
+    lastOwnWrite = Date.now();
     window.addEventListener('storage', (e) => { if (e.key === LOCK) heartbeat(); });
     C.visible = !document.hidden;
     document.addEventListener('visibilitychange', () => {
       C.visible = !document.hidden;
-      if (document.hidden) Main.save(); else heartbeat();
+      if (document.hidden) Main.save();
+      else { heartbeat(); if (pendingReport) { AS.UI.offlineReport(pendingReport); pendingReport = null; } }
     });
     window.addEventListener('pagehide', () => { Main.save(); releaseLock(); });
+    // Rückkehr aus dem Zwischenspeicher des Browsers (bfcache) oder aus dem Einfrieren
+    window.addEventListener('pageshow', (e) => { if (e.persisted) heartbeat(); });
+    document.addEventListener('resume', heartbeat);
     window.addEventListener('beforeunload', Main.save);
     document.addEventListener('keydown', onKey);
     ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => AS.Audio.unlock(), { once: true, passive: true }));

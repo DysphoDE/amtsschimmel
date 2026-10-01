@@ -5,8 +5,9 @@
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import { fileURLToPath } from 'url';
 
-const root = path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, '$1')), '..');
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 const read = (p) => fs.readFileSync(path.join(root, p), 'utf8');
 const html = read('index.html');
 const plainHtml = html.replace(/\?v=[0-9a-f]+/g, '');
@@ -35,6 +36,7 @@ const assets = ['css/style.css', ...scripts, 'manifest.webmanifest', 'icon.svg']
 const hash = crypto.createHash('sha256');
 hash.update(plainHtml);
 for (const a of assets) hash.update(read(a));
+for (const png of ['icon-192.png', 'icon-512.png', 'icon-maskable-512.png']) hash.update(fs.readFileSync(path.join(root, png)));
 const ver = 'amtsschimmel-' + hash.digest('hex').slice(0, 10);
 const tag = ver.slice(-10);
 

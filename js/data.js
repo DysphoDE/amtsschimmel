@@ -191,20 +191,20 @@
   // Kosten unter 1000 sind Faktoren auf die Epochenschwelle (bzw. 50 Akten in Epoche 0), größere Werte absolut
   const ec = (era, c) => (c >= 1000 ? c : Math.max(50, D.ERAS[era].at) * c);
   const S = (id, name, era, cost, desc, fx, flavor, req) => D.UPGRADES.push({ id, kind: 'misc', name, era, cost: ec(era, cost), desc, fx, flavor, req });
-  S('st1', 'Stempelkissen', 0, 60, 'Eingangsstempel ×2.', [{ t: 'click', x: 2 }], 'Rotes Stempelkissen, frisch getränkt.', { clicks: 20 });
-  S('st2', 'Holzgriff', 0, 600, 'Eingangsstempel ×2.', [{ t: 'click', x: 2 }], 'Liegt gut in der Hand. Sehr gut.', { clicks: 150 });
-  S('st3', 'Siegelring', 2, 7, 'Eingangsstempel bringen zusätzlich 0,1 % deiner Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Der Ring der Macht, Kanzleiausführung.', { clicks: 500 });
-  S('st4', 'Gummistempel', 4, 6, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Erfunden 1866. Die Verwaltung war nie wieder dieselbe.', { clicks: 1500 });
-  S('st5', 'Selbstfärbender Stempel', 5, 5, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Färbt sich selbst. Und den Schreibtisch.', { clicks: 3000 });
-  S('st6', 'Datumsstempel', 6, 5, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Zeigt zuverlässig das Datum von gestern.', { clicks: 5000 });
-  S('st7', 'Digitaler Stempel', 7, 5, 'Eingangsstempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Ein Stempel-Icon. Rechtlich umstritten, optisch überzeugend.', { clicks: 8000 });
-  S('st8', 'Qualifizierte Signatur', 8, 5, 'Eingangsstempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Benötigt Kartenleser, PIN, PUK und einen ruhigen Puls.', { clicks: 12000 });
-  S('st9', 'Quantenstempel', 9, 5, 'Eingangsstempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Stempelt alle Akten gleichzeitig – solange keiner hinsieht.', { clicks: 18000 });
+  S('st1', 'Stempelkissen', 0, 60, 'Alle Stempel ×1,5.', [{ t: 'click', x: 1.5 }], 'Rotes Stempelkissen, frisch getränkt.', { clicks: 20 });
+  S('st2', 'Holzgriff', 0, 600, 'Alle Stempel ×1,5.', [{ t: 'click', x: 1.5 }], 'Liegt gut in der Hand. Sehr gut.', { clicks: 150 });
+  S('st3', 'Siegelring', 2, 7, 'Jeder Stempel bringt zusätzlich 0,1 % deiner Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Der Ring der Macht, Kanzleiausführung.', { clicks: 500 });
+  S('st4', 'Gummistempel', 4, 6, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Erfunden 1866. Die Verwaltung war nie wieder dieselbe.', { clicks: 1500 });
+  S('st5', 'Selbstfärbender Stempel', 5, 5, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Färbt sich selbst. Und den Schreibtisch.', { clicks: 3000 });
+  S('st6', 'Datumsstempel', 6, 5, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Zeigt zuverlässig das Datum von gestern.', { clicks: 5000 });
+  S('st7', 'Digitaler Stempel', 7, 5, 'Stempel +0,1 % der Produktion.', [{ t: 'clickPct', a: 0.001 }], 'Ein Stempel-Icon. Rechtlich umstritten, optisch überzeugend.', { clicks: 8000 });
+  S('st8', 'Qualifizierte Signatur', 8, 5, 'Stempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Benötigt Kartenleser, PIN, PUK und einen ruhigen Puls.', { clicks: 12000 });
+  S('st9', 'Quantenstempel', 9, 5, 'Stempel +0,15 % der Produktion.', [{ t: 'clickPct', a: 0.0015 }], 'Stempelt alle Akten gleichzeitig – solange keiner hinsieht.', { clicks: 18000 });
 
-  S('zs1', 'Zuständigkeitsverzeichnis', 1, 5, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Eine Wachstafel mit allen Zuständigkeiten. Fast allen.', { correct: 25 });
-  S('zs2', 'Geschäftsverteilungsplan', 3, 6, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Achtzig Seiten, drei Anlagen, ein Organigramm in Farbe.', { correct: 300 });
-  S('zs3', 'Organigramm an der Wand', 5, 5, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Mit Pfeilen. Viele Pfeile.', { correct: 1200 });
-  S('zs4', 'Zuständigkeitsfinder', 7, 5, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }], 'Online! Antwortet auf alles mit „Bitte wenden Sie sich an Ihre zuständige Stelle“.', { correct: 4000 });
+  S('zs1', 'Zuständigkeitsverzeichnis', 1, 5, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Eine Wachstafel mit allen Zuständigkeiten. Fast allen.', { correct: 25 });
+  S('zs2', 'Geschäftsverteilungsplan', 3, 6, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Achtzig Seiten, drei Anlagen, ein Organigramm in Farbe.', { correct: 300 });
+  S('zs3', 'Organigramm an der Wand', 5, 5, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Mit Pfeilen. Viele Pfeile.', { correct: 1200 });
+  S('zs4', 'Zuständigkeitsfinder', 7, 5, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }], 'Online! Antwortet auf alles mit „Bitte wenden Sie sich an Ihre zuständige Stelle“.', { correct: 4000 });
 
   S('fl1', 'Bürostuhl mit Armlehne', 1, 12, 'Arbeitsfluss-Maximum +10.', [{ t: 'flowMax', a: 10 }], 'Endlich Halt beim Stempeln.', { flow: 10 });
   S('fl2', 'Ergonomische Stempelhaltung', 3, 25, 'Arbeitsfluss-Maximum +10.', [{ t: 'flowMax', a: 10 }], 'Seminar „Rückengerecht stempeln“, zwei Tage, mit Zertifikat.', { flow: 20 });

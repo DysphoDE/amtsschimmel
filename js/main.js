@@ -15,7 +15,22 @@
     remove: (k) => { try { if (lsOk) localStorage.removeItem(k); else delete mem[k]; } catch (e) { /* egal */ } },
   };
 
-  Main.save = function () { return C.save(); };
+  /* Speichern mit Schutz vor fremden, neueren Ständen (anderer oder eingefrorener Tab) */
+  const META = 'amtsschimmel.meta';
+  let lastOwnWrite = 0;
+  const readMeta = () => { try { return JSON.parse(C.storage.get(META) || 'null'); } catch (e) { return null; } };
+  Main.save = function () {
+    if (C.readOnly) return false;
+    const m = readMeta();
+    if (m && m.tab !== tabId && m.t > lastOwnWrite) {
+      // Seit unserem letzten Speichern hat ein anderer Tab gespeichert: nicht überschreiben
+      block('In einem anderen Tab wurde inzwischen weitergespielt.');
+      return false;
+    }
+    const ok = C.save();
+    if (ok) { lastOwnWrite = Date.now(); try { C.storage.set(META, JSON.stringify({ tab: tabId, t: lastOwnWrite })); } catch (e) { /* egal */ } }
+    return ok;
+  };
   Main.afterLoad = function () {
     document.body.dataset.era = C.get().era;
     AS.Audio.setEra(C.get().era);
@@ -26,9 +41,12 @@
 
   /* ---------- Nur ein Tab speichert ---------- */
   const LOCK = 'amtsschimmel.lock';
-  // Die Tab-ID bleibt beim Neuladen desselben Tabs erhalten (sessionStorage gilt pro Tab)
+  // Die Tab-ID bleibt beim Neuladen desselben Tabs erhalten (sessionStorage gilt pro Tab).
+  // Ein duplizierter Tab erbt den sessionStorage, ist aber kein Neuladen – dann gibt es eine neue ID.
   let tabId = null;
-  try { tabId = sessionStorage.getItem('amtsschimmel.tabid'); } catch (e) { tabId = null; }
+  let isReload = false;
+  try { const nav = performance.getEntriesByType('navigation')[0]; isReload = !!nav && nav.type === 'reload'; } catch (e) { isReload = false; }
+  try { tabId = isReload ? sessionStorage.getItem('amtsschimmel.tabid') : null; } catch (e) { tabId = null; }
   if (!tabId) { tabId = Math.random().toString(36).slice(2); try { sessionStorage.setItem('amtsschimmel.tabid', tabId); } catch (e) { /* egal */ } }
   const releaseLock = () => { const l = readLock(); if (l && l.id === tabId) C.storage.remove(LOCK); };
   let blocked = false, blockModal = null;
@@ -48,9 +66,17 @@
     C.readOnly = !!C.futureLock;
     writeLock();
     const info = C.load(); // den neuesten Stand des anderen Tabs übernehmen
+    lastOwnWrite = Date.now();
     Main.afterLoad();
     if (info.offline) AS.UI.offlineReport(info.offline);
   }
+  // Import, Wiederherstellen oder Zurücksetzen hier: dieser Tab übernimmt bewusst
+  C.onUnlock = function () {
+    if (blockModal) { blockModal.close(); blockModal = null; }
+    blocked = false;
+    writeLock();
+    lastOwnWrite = Date.now() + 1;
+  };
   function heartbeat() {
     const l = readLock();
     if (l && l.id !== tabId && Date.now() - l.t < 12000) {
@@ -64,6 +90,7 @@
   // Die Uhrzeit (nicht performance.now) misst auch Standby und Ruhezustand richtig.
   let last = Date.now(), lastFrame = performance.now(), slowAcc = 0, saveAcc = 0, beatAcc = 0;
   const OFFLINE_GAP = 300;
+  let pendingReport = null;
   function logic() {
     const now = Date.now();
     const dt = (now - last) / 1000;
@@ -72,7 +99,7 @@
     if (dt > OFFLINE_GAP) {
       // Längere Lücke (Standby, gedrosselter Hintergrund-Tab): wie Abwesenheit abrechnen
       const r = C.applyOffline(dt);
-      if (r && r.gain > 0 && !document.hidden) AS.UI.offlineReport(r);
+      if (r && r.gain > 0) { if (document.hidden) pendingReport = r; else AS.UI.offlineReport(r); }
     } else C.tick(dt);
     slowAcc += dt; saveAcc += dt; beatAcc += dt;
     if (slowAcc >= 0.25) { slowAcc = 0; try { AS.UI.slow(); AS.Desk.slow(); } catch (e) { console.error(e); } }
@@ -106,12 +133,14 @@
 
   function registerSW() {
     if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol) || /localhost|127\.0\.0\.1/.test(location.hostname)) return;
+    const hadController = !!navigator.serviceWorker.controller;
     navigator.serviceWorker.register('sw.js').then((reg) => {
       reg.addEventListener('updatefound', () => {
         const nw = reg.installing;
         if (!nw) return;
         nw.addEventListener('statechange', () => {
-          if (nw.state === 'activated' && navigator.serviceWorker.controller) {
+          // Nur ein echtes Update melden: Beim ersten Besuch gibt es noch keinen steuernden Service Worker
+          if (nw.state === 'installed' && hadController) {
             Main.save();
             AS.UI.toast({ icon: 'stern', kicker: 'Neue Version', title: 'Das Amt wurde modernisiert', text: 'Hier tippen, um die neue Version zu laden.', ms: 20000, onClick: () => { Main.save(); location.reload(); } });
           }
@@ -129,13 +158,18 @@
     if (!lsOk) AS.UI.toast({ icon: 'widerspruch', kicker: 'Hinweis', title: 'Speichern nicht möglich', text: 'Der Browser erlaubt keinen lokalen Speicher. Exportiere deinen Spielstand regelmäßig.', cls: 'red', ms: 9000 });
     if (prior && prior.id !== tabId && Date.now() - prior.t < 12000) block('Amtsschimmel läuft bereits in einem anderen Tab oder Fenster.');
     else writeLock();
+    lastOwnWrite = Date.now();
     window.addEventListener('storage', (e) => { if (e.key === LOCK) heartbeat(); });
     C.visible = !document.hidden;
     document.addEventListener('visibilitychange', () => {
       C.visible = !document.hidden;
-      if (document.hidden) Main.save(); else heartbeat();
+      if (document.hidden) Main.save();
+      else { heartbeat(); if (pendingReport) { AS.UI.offlineReport(pendingReport); pendingReport = null; } }
     });
     window.addEventListener('pagehide', () => { Main.save(); releaseLock(); });
+    // Rückkehr aus dem Zwischenspeicher des Browsers (bfcache) oder aus dem Einfrieren
+    window.addEventListener('pageshow', (e) => { if (e.persisted) heartbeat(); });
+    document.addEventListener('resume', heartbeat);
     window.addEventListener('beforeunload', Main.save);
     document.addEventListener('keydown', onKey);
     ['pointerdown', 'keydown', 'touchstart'].forEach((ev) => document.addEventListener(ev, () => AS.Audio.unlock(), { once: true, passive: true }));

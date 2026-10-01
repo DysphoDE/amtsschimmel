@@ -41,13 +41,13 @@ Die Simulation (`node tools/sim.mjs <Stunden> <Profil>`) steuert ein Bot-Spieler
 
 | Profil | Verhalten | Weltamt | Finale |
 |---|---|---|---|
-| `active` | sortiert dauerhaft 1,4 Akten/s, 95 % richtig | ca. 6,5 h | ca. 10,5 h |
-| `casual` | 10 Min. aktiv, 20 Min. im Hintergrund | ca. 13,5 h | ca. 21 h |
-| `clicker` | nur Eingangsstempel, 4/s | ca. 8 h | ca. 12,5 h |
+| `active` | sortiert dauerhaft 1,4 Akten/s, 95 % richtig | ca. 6 h | ca. 9,5 h |
+| `casual` | 10 Min. aktiv, 20 Min. im Hintergrund | ca. 12 h | ca. 20 h |
+| `clicker` | nur Eingangsstempel, 4/s, sortiert nie | ca. 8,5 h | ca. 14 h |
 | `abend` | 1 Stunde am Tag, sonst Tab geschlossen | – | ca. 7 Tage |
-| `idle` | 5 Minuten alle 3 Stunden, sonst Tab geschlossen | – | ca. 9 Tage |
+| `idle` | 5 Minuten alle 3 Stunden, sonst Tab geschlossen | – | ca. 8,5 Tage |
 
-Aktives, richtiges Sortieren bringt im Spätspiel etwa das 2- bis 3-Fache der reinen Produktion. Gelegenheitsspieler werden über drei Dinge mitgenommen:
+Aktives, richtiges Sortieren bringt im Spätspiel etwa das 2- bis 3-Fache der reinen Produktion. Bloßes Klicken auf den Eingangsstempel hilft, kommt aber deutlich langsamer voran. Ein Ressortstempel ist immer ein festes Vielfaches des Eingangsstempels: „Alle Stempel ×N“ wirkt auf beide, „Ressortstempel ×N“ nur auf den Ressortstempel. Gelegenheitsspieler werden über drei Dinge mitgenommen:
 - die Vertretung, die in Pausen automatisch stempelt,
 - die Automatik-Laufbahnstufen, die auch während der Abwesenheit einkaufen,
 - den Offline-Ertrag, der Vorschriften-Wachstum und Vertretung mitrechnet.

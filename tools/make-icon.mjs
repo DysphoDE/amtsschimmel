@@ -1,10 +1,11 @@
 // Erzeugt icon.svg (und eine Vorlage für das maskierbare Symbol) aus dem Schimmelkopf in js/icons.js.
-// Aufruf: node tools/make-icon.mjs  – die PNG-Fassungen erzeugt tools/icons.html im Browser.
+// Aufruf: node tools/make-icon.mjs. Die PNG-Fassungen entstehen, indem man icon.svg bzw. tools/icon-maskable.svg im Browser auf ein Canvas zeichnet und als PNG speichert.
 import { createRequire } from 'module';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 const require = createRequire(import.meta.url);
-const root = path.join(path.dirname(new URL(import.meta.url).pathname.replace(/^\/(\w:)/, '$1')), '..');
+const root = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
 require(path.join(root, 'js', 'icons.js'));
 const head = globalThis.AS.ICONS.schimmelKopf.replace(/^<svg[^>]*>/, '').replace(/<\/svg>$/, '');
 

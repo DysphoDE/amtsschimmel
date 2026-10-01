@@ -2,9 +2,9 @@
    Alle Dateien werden pro Version gemeinsam zwischengespeichert und aus diesem Stand ausgeliefert,
    damit nie alte und neue Skripte gemischt werden. Eine neue Version (tools/build.mjs setzt VERSION)
    lädt im Hintergrund komplett und gilt ab dem nächsten Seitenaufruf. */
-const VERSION = 'amtsschimmel-8fc2e1bdae';
+const VERSION = 'amtsschimmel-032fe39066';
 const ASSETS = ['./', 'index.html', 'css/style.css', 'js/util.js', 'js/data.js', 'js/systems.js', 'js/content.js', 'js/achievements.js',
-  'js/core.js', 'js/icons.js', 'js/audio.js', 'js/desk.js', 'js/ui.js', 'js/main.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png'];
+  'js/core.js', 'js/icons.js', 'js/audio.js', 'js/desk.js', 'js/ui.js', 'js/main.js', 'manifest.webmanifest', 'icon.svg', 'icon-192.png', 'icon-512.png', 'icon-maskable-512.png'];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(VERSION).then((c) => c.addAll(ASSETS.map((a) => new Request(a, { cache: 'reload' })))).then(() => self.skipWaiting()));

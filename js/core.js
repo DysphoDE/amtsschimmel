@@ -20,6 +20,7 @@
   const ANL_MIN = 240, ANL_MAX = 480, ANL_WAIT = 90;
   const DJ_DIV = 1e11, DJ_EFFECT = 0.02;
   const OFF_EFF = 0.6, OFF_CAP = 8;
+  const CHAOS = [0.25, 0.5, 0.75, 1, 1.5, 2, 4];
   const MUEDE = 0.15, FIRST_VISIT = 0.05, NOVELLE_X = 1.1, NOVELLE_BASE = 3e6, NOVELLE_GROWTH = 10;
   C.CONST = { GROWTH, GREM_GROWTH, DJ_DIV, DJ_EFFECT, RESSORT_FACTOR, FLOW_STEP, AUTO_SHARE };
 
@@ -217,10 +218,12 @@
     M.parkinson = F.noParkinson ? 1 : 1 + F.parkinson * Math.log10(1 + S.vor);
     M.vps = v * F.vX * M.parkinson;
     // Stempel
-    const pct = F.clickPct * M.sps;
-    M.clickVal = (1 + pct) * F.clickX * clickBuff;
+    // Ein Stempel ist (1 + Anteil der Produktion) × Stempelmultiplikator wert;
+    // der Ressortstempel ist immer ein Vielfaches davon (Ressortfaktor × Ressortmultiplikator × Arbeitsfluss).
+    const stampUnit = (1 + F.clickPct * M.sps) * F.clickX;
+    M.clickVal = stampUnit * clickBuff;
     M.flowMult = 1 + FLOW_STEP * Math.floor(S.korb.flow);
-    M.stampBase = (F.clickX + pct) * RESSORT_FACTOR * F.stampX;
+    M.stampBase = stampUnit * RESSORT_FACTOR * F.stampX;
     M.stampVal = M.stampBase * stampBuff * clickBuff * M.flowMult;
     M.autoVal = M.stampBase * AUTO_SHARE;
   };
@@ -894,7 +897,7 @@
     // Schilda
     if (M.F.chaos) {
       chaosAcc += dt;
-      if (chaosAcc >= 60 || !S.flags.chaosX) { chaosAcc = 0; S.flags.chaosX = U.pick([0.25, 0.5, 0.75, 1, 1.5, 2, 4]); U.emit('chaos', { x: S.flags.chaosX }); }
+      if (chaosAcc >= 60 || !S.flags.chaosX) { chaosAcc = 0; S.flags.chaosX = U.pick(CHAOS); U.emit('chaos', { x: S.flags.chaosX }); }
     }
     if (S.runAkten >= 1e6 && S.run.clicks === 0 && S.run.correct === 0 && S.stats.reforms > 0) S.flags.reinverwaltung = true;
 
@@ -921,6 +924,8 @@
     const t = Math.min(sec, C.offlineCapH() * 3600);
     S.buffs = [];
     const oldEra = S.era;
+    const chaosBefore = S.flags.chaosX;
+    if (M.F.chaos) S.flags.chaosX = CHAOS.reduce((a, b) => a + b, 0) / CHAOS.length;
     // In Schritten: Vorschriften wachsen (Parkinson), die Automatik kauft ein, die Vertretung stempelt mit
     const steps = Math.max(1, Math.min(240, Math.ceil(t / 30))), h = t / steps;
     let gain = 0, vGain = 0;
@@ -935,6 +940,7 @@
       autoBuy();
     }
     S.stats.offlineAkten += gain;
+    if (M.F.chaos) S.flags.chaosX = chaosBefore || 1;
     C.recalc();
     checkAchievements();
     if (S.era > oldEra) U.emit('era', { era: S.era, old: oldEra, offline: true });
@@ -969,7 +975,7 @@
   }
   function sanitize(def, src, path) {
     if (MAPS[path]) return src && typeof src === 'object' && !Array.isArray(src) ? cleanMap(src, MAPS[path]) : def;
-    if (def === null) return src && typeof src === 'object' ? src : null;
+    if (def === null) return src && (typeof src === 'object' || typeof src === 'string') ? src : null;
     if (src === undefined || src === null) return def;
     if (Array.isArray(def)) return Array.isArray(src) ? src : def;
     if (typeof def === 'number') return typeof src === 'number' && isFinite(src) ? Math.max(0, src) : def;
@@ -1011,10 +1017,13 @@
     s.buffs = s.buffs.filter((b) => b && typeof b.end === 'number' && typeof b.x === 'number' && isFinite(b.x) && ['prod', 'click', 'stamp', 'cost', 'gen'].indexOf(b.k) >= 0);
     const K = s.korb;
     if (!Array.isArray(K.pending)) K.pending = [];
-    K.pending = K.pending.filter((p) => p && Number.isInteger(p.r) && p.r >= 0 && p.r < D.RESSORTS.length && typeof p.title === 'string').slice(0, 8);
+    K.pending = K.pending.filter((p) => p && Number.isInteger(p.r) && p.r >= 0 && p.r < D.RESSORTS.length && typeof p.title === 'string' &&
+      typeof p.due === 'number' && isFinite(p.due) && p.need === 2 && typeof p.prog === 'number').slice(0, 8);
+    for (const p of K.pending) p.due = Math.min(p.due, K.docNo + 3);
     const okSeq = (q) => q === undefined || (Array.isArray(q) && q.length === 3 && q.every((x) => Number.isInteger(x) && x >= 0 && x < D.RESSORTS.length));
     const okDoc = (d) => d && Number.isInteger(d.r) && d.r >= -1 && d.r < D.RESSORTS.length && typeof d.need === 'number' && d.need >= 1 && d.need <= 3 && typeof d.prog === 'number' && typeof d.title === 'string' && okSeq(d.seq);
     if (!okDoc(K.doc)) K.doc = null;
+    if (typeof s.anliegen.cur !== 'string') s.anliegen.cur = null;
     if (s.anliegen.cur && !D.ANL[s.anliegen.cur]) s.anliegen.cur = null;
     if (!Array.isArray(s.anliegen.recent)) s.anliegen.recent = [];
     if (['kurz', 'lang', 'wiss'].indexOf(s.settings.numFmt) < 0) s.settings.numFmt = 'kurz';
@@ -1039,6 +1048,8 @@
     return JSON.stringify(S);
   };
   C.readOnly = false; // gesetzt, wenn ein neuerer Spielstand liegt oder ein anderer Tab spielt
+  C.onUnlock = null;  // Hook für den Browser (Tab-Sperre übernehmen)
+  C.unlockSave = function () { C.readOnly = false; C.futureLock = false; if (C.onUnlock) C.onUnlock(); };
   C.save = function () {
     if (!C.storage || !S || C.readOnly) return false;
     try {
@@ -1124,6 +1135,8 @@
     U.numFmt = S.settings.numFmt;
     C.recalc();
     if (!S.korb.doc) newDoc();
+    C.unlockSave();
+    C.save();
     U.emit('loaded', {});
     return { ok: true };
   };
@@ -1134,6 +1147,8 @@
       U.numFmt = S.settings.numFmt;
       C.recalc();
       if (!S.korb.doc) newDoc();
+      C.unlockSave();
+      C.save();
       U.emit('loaded', {});
       return true;
     } catch (e) { return false; }
@@ -1144,7 +1159,8 @@
     if (settings) S.settings = settings;
     C.recalc();
     newDoc();
-    if (C.storage) { try { C.storage.set(C.SAVE_KEY, C.serialize()); } catch (e) { /* egal */ } }
+    C.unlockSave();
+    C.save();
     U.emit('loaded', {});
   };
 })(typeof window !== 'undefined' ? window : globalThis);

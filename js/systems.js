@@ -14,8 +14,8 @@
   const P = (no, teil, name, cost, desc, fx) => ({ id: 'p' + no, no, teil, name, cost, desc, fx });
   D.PARAS = [
     P(1, 'I', 'Geltungsbereich', 1, 'Gesamtproduktion +5 %.', [{ t: 'prod', x: 1.05 }]),
-    P(2, 'I', 'Begriffsbestimmungen', 4, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }]),
-    P(3, 'I', 'Zuständigkeit', 12, 'Der zuständige Stempel wird hervorgehoben. Ressortstempel ×1,1.', [{ t: 'assist' }, { t: 'stamp', x: 1.1 }]),
+    P(2, 'I', 'Begriffsbestimmungen', 4, 'Ressortstempel ×1,15.', [{ t: 'stamp', x: 1.15 }]),
+    P(3, 'I', 'Zuständigkeit', 12, 'Der zuständige Stempel wird hervorgehoben. Ressortstempel ×1,05.', [{ t: 'assist' }, { t: 'stamp', x: 1.05 }]),
     P(4, 'I', 'Amtshilfe', 40, 'Gesamtproduktion +1 % je Gremium (mit abnehmendem Ertrag).', [{ t: 'perGrem', a: 0.01 }]),
     P(5, 'I', 'Verwaltungsvorschrift', 150, 'Gesamtproduktion +10 %.', [{ t: 'prod', x: 1.1 }]),
     P(6, 'I', 'Ermessen', 600, 'Amtsschimmel-Effekte halten 25 % länger.', [{ t: 'schimDur', x: 1.25 }]),
@@ -33,15 +33,15 @@
     P(17, 'II', 'Digitalpakt', 50000, 'Technik ×2.', [{ t: 'cat', cat: 'technik', x: 2 }]),
     P(18, 'II', 'Alimentationsprinzip', 350000, 'Alle Generatoren ×2.', [{ t: 'cat', cat: 'all', x: 2 }]),
 
-    P(19, 'III', 'Formvorschrift', 2, 'Eingangsstempel ×1,5.', [{ t: 'click', x: 1.5 }]),
+    P(19, 'III', 'Formvorschrift', 2, 'Alle Stempel ×1,25.', [{ t: 'click', x: 1.25 }]),
     P(20, 'III', 'Fristenregelung', 10, 'EILT-Fristen +3 Sekunden, EILT-Ertrag +25 %.', [{ t: 'eiltTime', a: 3 }, { t: 'eilt', x: 1.25 }]),
     P(21, 'III', 'Vertretungsregel', 25, 'Wenn du 3 Sekunden nicht stempelst, stempelt die Vertretung (1 Vorgang alle 2 Sekunden).', [{ t: 'auto', a: 0.5 }]),
     P(22, 'III', 'Rechtsbehelfsbelehrung', 100, 'Widersprüche bringen 25 % mehr.', [{ t: 'wider', x: 1.25 }]),
     P(23, 'III', 'Beschleunigungsgebot', 400, 'Arbeitsfluss-Maximum +10.', [{ t: 'flowMax', a: 10 }]),
     P(24, 'III', 'Aktenführungspflicht', 1600, 'Formulare werden 25 % häufiger gefunden.', [{ t: 'formRate', x: 1.25 }]),
-    P(25, 'III', 'Stempelordnung', 7000, 'Eingangsstempel bringen zusätzlich 0,2 % der Produktion.', [{ t: 'clickPct', a: 0.002 }]),
+    P(25, 'III', 'Stempelordnung', 7000, 'Jeder Stempel bringt zusätzlich 0,2 % der Produktion.', [{ t: 'clickPct', a: 0.002 }]),
     P(26, 'III', 'Verfahrensbeschleunigung', 35000, 'Die Vertretung stempelt einen Vorgang mehr pro Sekunde.', [{ t: 'auto', a: 1 }]),
-    P(27, 'III', 'Genehmigungsfiktion', 200000, 'Ressortstempel ×1,5.', [{ t: 'stamp', x: 1.5 }]),
+    P(27, 'III', 'Genehmigungsfiktion', 200000, 'Ressortstempel ×1,25.', [{ t: 'stamp', x: 1.25 }]),
 
     P(28, 'IV', 'Geschäftsordnung', 3, 'Gremien beschließen 50 % mehr Vorschriften.', [{ t: 'v', x: 1.5 }]),
     P(29, 'IV', 'Tagesordnung', 15, 'Parkinson-Faktor +0,25: Vorschriften vermehren sich schneller.', [{ t: 'parkinson', a: 0.25 }]),
@@ -82,8 +82,8 @@
       unlock: (S) => S.maxEra >= 3 },
     { id: 'npm', name: 'New Public Management', motto: '„Kennzahlen, Kennzahlen, Kennzahlen.“',
       desc: 'Die Verwaltung als Dienstleistungsunternehmen. Wer schnell und richtig stempelt, wird belohnt – wer nur wartet, nicht.',
-      pro: ['Eingangs- und Ressortstempel ×3', 'Arbeitsfluss-Maximum +20'], con: ['Generatoren ×0,85'],
-      fx: [{ t: 'click', x: 3 }, { t: 'stamp', x: 3 }, { t: 'flowMax', a: 20 }, { t: 'cat', cat: 'all', x: 0.85 }],
+      pro: ['Alle Stempel ×2, Ressortstempel zusätzlich ×1,5', 'Arbeitsfluss-Maximum +20'], con: ['Generatoren ×0,85'],
+      fx: [{ t: 'click', x: 2 }, { t: 'stamp', x: 1.5 }, { t: 'flowMax', a: 20 }, { t: 'cat', cat: 'all', x: 0.85 }],
       unlock: (S) => S.maxEra >= 4 },
     { id: 'entbuer', name: 'Entbürokratisierung', motto: '„Für jede neue Vorschrift fallen zwei weg.“',
       desc: 'Schlanker Staat. Vorschriften vermehren sich nicht mehr von selbst, dafür arbeitet alles schneller und billiger.',
@@ -116,7 +116,7 @@
   ];
   const K = (id, lb, name, cost, desc, fx, req) => ({ id, lb, name, cost, desc, fx, req: req || null });
   D.PERKS = [
-    K('stempelfest', 'e', 'Stempelfest', 1, 'Eingangs- und Ressortstempel ×1,5.', [{ t: 'click', x: 1.5 }, { t: 'stamp', x: 1.5 }]),
+    K('stempelfest', 'e', 'Stempelfest', 1, 'Alle Stempel ×1,25, Ressortstempel zusätzlich ×1,25.', [{ t: 'click', x: 1.25 }, { t: 'stamp', x: 1.25 }]),
     K('fristgerecht', 'e', 'Fristgerecht', 2, 'EILT-Fristen +3 Sekunden, EILT-Ertrag +25 %.', [{ t: 'eiltTime', a: 3 }, { t: 'eilt', x: 1.25 }]),
     K('kaffeemaschine', 'e', 'Eigene Kaffeemaschine', 3, 'Amtsschimmel-Effekte halten 25 % länger.', [{ t: 'schimDur', x: 1.25 }]),
     K('vertretungsplan', 'e', 'Vertretungsplan', 4, 'Die Vertretung stempelt von Anfang an (1 Vorgang alle 2 Sekunden), auch ohne § 21.', [{ t: 'auto', a: 0.5 }]),
@@ -155,7 +155,7 @@
     l: { name: 'legendär', w: 2, bonus: 0.05, cls: 'r-l' },
   };
   D.ORDNER = [
-    { id: 'allg', name: 'Allgemeine Verwaltung', set: 'Eingangsstempel ×1,5', fx: [{ t: 'click', x: 1.5 }] },
+    { id: 'allg', name: 'Allgemeine Verwaltung', set: 'Alle Stempel ×1,25', fx: [{ t: 'click', x: 1.25 }] },
     { id: 'bau', name: 'Bauwesen', set: 'Generatoren und Gremien kosten 5 % weniger', fx: [{ t: 'cost', x: 0.95 }] },
     { id: 'ord', name: 'Ordnung & Sicherheit', set: 'Widersprüche bringen 25 % mehr', fx: [{ t: 'wider', x: 1.25 }] },
     { id: 'fin', name: 'Finanzen', set: 'Haushaltsreste vom Amtsschimmel ×2', fx: [{ t: 'lucky', x: 2 }] },

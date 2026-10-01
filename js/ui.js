@@ -26,7 +26,11 @@
     el.innerHTML = ic(o.icon || 'akte') + '<div>' + (o.kicker ? '<div class="t-kicker">' + esc(o.kicker) + '</div>' : '') +
       '<div class="t-title">' + esc(o.title || '') + '</div>' + (o.text ? '<div class="t-text">' + esc(o.text) + '</div>' : '') + '</div>';
     el.addEventListener('click', () => { if (o.onClick) o.onClick(); close(); });
-    if (o.onClick) el.style.cursor = 'pointer';
+    if (o.onClick) {
+      el.style.cursor = 'pointer';
+      el.setAttribute('role', 'button'); el.tabIndex = 0;
+      el.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); o.onClick(); close(); } });
+    }
     host.appendChild(el);
     while (host.children.length > 4) host.firstChild.remove();
     const close = () => { el.classList.add('out'); setTimeout(() => el.remove(), 300); };
@@ -284,7 +288,7 @@
       h += '<div class="card era-card"><div class="era-meta">' + esc(e.place) + ' · ' + esc(e.year) + ' · Epoche ' + (S.era + 1) + ' von ' + D.ERAS.length + '</div><div class="era-big">' + esc(e.name) + '</div>' +
         '<div class="timeline">' + D.ERAS.map((x, i) => '<i class="' + (i < S.era ? 'on' : i === S.era ? 'now' : '') + '" title="' + esc(x.name) + '"></i>').join('') + '</div>' +
         '<p class="era-text">' + esc(e.text) + '</p><div id="amtNextEra"></div></div>';
-      if (C.djGain() >= 1) h += '<div class="card" style="border-left:5px solid var(--red)"><b>Eine Verwaltungsreform ist möglich.</b><p class="small">Du würdest <b id="amtDjGain"></b> Dienstjahre erhalten. <button class="btn small primary" type="button" data-action="tab" data-tab="reform">Zur Reform</button></p></div>';
+      if (C.djGain() >= 1) h += '<div class="card" style="border-left:5px solid var(--red)"><b>Eine Verwaltungsreform ist möglich.</b><p class="small">Du würdest <b id="amtDjGain"></b> erhalten. <button class="btn small primary" type="button" data-action="tab" data-tab="reform">Zur Reform</button></p></div>';
       h += '<h3 class="sec">' + ic('reform') + 'Leitbild: ' + esc(lb.name) + '</h3><div class="card"><div class="lb-motto" style="font-family:var(--font-serif);font-style:italic">' + esc(lb.motto) + '</div><p class="small">' + esc(lb.desc) + '</p>' +
         (lb.pro.length || lb.con.length ? '<ul class="small" style="margin:0;padding-left:18px">' + lb.pro.map((x) => '<li style="color:#1d5e33">' + esc(x) + '</li>').join('') + lb.con.map((x) => '<li style="color:#7f1d1d">' + esc(x) + '</li>').join('') + '</ul>' : '') +
         (S.streak && lb.id !== 'kameral' ? '<p class="small" style="color:#7f1d1d">Reformmüdigkeit: Produktion ×' + U.dec(C.M.muede, 2) + ', weil du dieses Leitbild ' + (S.streak + 1) + '-mal hintereinander gewählt hast.</p>' : '') + '</div>';
@@ -311,7 +315,7 @@
       const nx = C.nextEraAt();
       const el = $('amtNextEra');
       if (el) setH(el, nx ? '<div class="small">Nächste Epoche „<b>' + esc(D.ERAS[S.era + 1].name) + '</b>“ ab ' + f(nx) + ' Akten in diesem Durchgang</div><div class="bar"><i style="width:' + U.clamp(Math.log10(1 + S.runAkten) / Math.log10(1 + nx) * 100, 0, 100) + '%"></i></div>' : '<div class="small">Die letzte Epoche ist erreicht.</div>');
-      const dg = $('amtDjGain'); if (dg) setT(dg, f(C.djGain()));
+      const dg = $('amtDjGain'); if (dg) { const g = C.djGain(); setT(dg, f(g) + (g === 1 ? ' Dienstjahr' : ' Dienstjahre')); }
       for (const p of D.PROJECTS) {
         const b = $('fund_' + p.id);
         if (!b) continue;
@@ -362,7 +366,7 @@
         h += '</div></div>';
       }
       if (C.novelleOpen()) {
-        h += '<h3 class="sec">' + ic('para') + 'Gesetzesnovellen</h3><div class="card"><p class="small">Das Gesetzbuch ist vollständig – aber eine Verwaltung ist nie fertig. Jede Novelle steigert die Produktion in diesem Durchgang um 10 %. Bisher: <b>' + S.novelle + '</b> Novellen (×' + U.dec(Math.pow(C.NOVELLE_X, S.novelle), 2) + ').</p><button class="btn small blue" type="button" data-action="buyNovelle" id="btnNovelle"></button></div>';
+        h += '<h3 class="sec">' + ic('para') + 'Gesetzesnovellen</h3><div class="card"><p class="small">Das Gesetzbuch ist vollständig – aber eine Verwaltung ist nie fertig. Jede Novelle steigert die Produktion in diesem Durchgang um 10 %. Bisher: <b>' + S.novelle + '</b> ' + (S.novelle === 1 ? 'Novelle' : 'Novellen') + ' (×' + U.dec(Math.pow(C.NOVELLE_X, S.novelle), 2) + ').</p><button class="btn small blue" type="button" data-action="buyNovelle" id="btnNovelle"></button></div>';
       } else if (Object.keys(S.paras).length >= 30) {
         h += '<p class="small muted">Wenn alle 36 Paragrafen in Kraft sind, lassen sich Gesetzesnovellen beschließen.</p>';
       }
@@ -394,7 +398,7 @@
       const dup = C.duplicateForms();
       let h = '<h2 class="sec">' + ic('album') + 'Formular-Album <span class="right">' + found + ' / ' + D.FORMS.length + '</span></h2>';
       h += '<p class="small muted">Beim Abschließen von Vorgängen tauchen manchmal Formulare auf. Sie bleiben für immer – auch nach einer Reform. Jedes neue Formular steigert die Produktion (zurzeit +' + U.pct(bonus, 1) + '), jeder volle Ordner gibt einen Sonderbonus.</p>';
-      h += '<div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + ic('altpapier') + '<span class="small"><b>' + dup + '</b> doppelte Formulare</span><button class="btn small" type="button" data-action="altpapier"' + (dup ? '' : ' disabled') + '>Dubletten ins Altpapier (+' + f(Math.max(100, C.M.spsBase * 120) * dup) + ' Akten)</button></div>';
+      h += '<div class="card" style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">' + ic('altpapier') + '<span class="small"><b>' + dup + '</b> ' + (dup === 1 ? 'doppeltes Formular' : 'doppelte Formulare') + '</span><button class="btn small" type="button" data-action="altpapier"' + (dup ? '' : ' disabled') + '>Dubletten ins Altpapier (+' + f(Math.max(100, C.M.spsBase * 120) * dup) + ' Akten)</button></div>';
       for (const o of D.ORDNER) {
         const list = D.FORMS.filter((x) => x.ordner === o.id);
         const have = list.filter((x) => S.forms[x.id]).length;
@@ -564,7 +568,11 @@
     else if (info.fresh) introModal();
   };
   UI.offlineReport = function (r) {
-    if (document.querySelector('.modal-back')) return;
+    if (!r || !(r.gain > 0)) return;
+    if (document.querySelector('.modal-back, .finale')) {
+      UI.toast({ icon: 'uhr', kicker: 'Während deiner Abwesenheit', title: '+' + f(r.gain) + ' Akten', text: U.fmtTime(r.sec) + ' weg, ' + U.pct(r.eff) + ' Offline-Ertrag.', cls: 'blue', ms: 8000 });
+      return;
+    }
     offlineModal(r);
   };
   function introModal() {
@@ -580,7 +588,7 @@
     const gain = C.djGain();
     const keepI = C.M.F.flags.keepI, keepAll = C.M.F.flags.keepAll;
     UI.confirm('Verwaltungsreform', '<p>Neues Leitbild: <b>' + esc(l.name) + '</b>' + (S.visited[l.id] ? '' : ' <span class="chip ok">neu: +5 % für immer</span>') + (selLb === S.leitbild && selLb !== 'kameral' ? ' <span class="chip red">Reformmüdigkeit</span>' : '') + '</p>' +
-      '<p>Du erhältst <b>' + f(gain) + ' Dienstjahre</b> und <b>' + f(gain) + ' Pensionspunkte</b>.</p>' +
+      '<p>Du erhältst <b>' + f(gain) + (gain === 1 ? ' Dienstjahr' : ' Dienstjahre') + '</b> und <b>' + f(gain) + (gain === 1 ? ' Pensionspunkt' : ' Pensionspunkte') + '</b>.</p>' +
       '<p class="small">Zurückgesetzt werden: Akten, Personal & Technik, Gremien, Vorschriften, Verbesserungen, ' + (keepAll ? '' : keepI ? 'Paragrafen (außer Teil I), ' : 'Paragrafen, ') + 'Großprojekte und die Epoche.<br>Erhalten bleiben: Dienstjahre, Laufbahn, Formulare, Urkunden und Statistik.</p>', 'Reform durchführen', () => {
       const r = C.reform(selLb);
       if (!r) return;
@@ -590,7 +598,7 @@
       A.setEra(C.get().era);
       AS.Desk.reset();
       UI.refresh();
-      UI.toast({ icon: 'reform', kicker: 'Verwaltungsreform', title: 'Leitbild: ' + D.LB[r.lb].name, text: '+' + f(r.gain) + ' Dienstjahre. ' + (r.firstVisit ? 'Neues Leitbild: +5 % Produktion für immer!' : ''), cls: 'blue' });
+      UI.toast({ icon: 'reform', kicker: 'Verwaltungsreform', title: 'Leitbild: ' + D.LB[r.lb].name, text: '+' + f(r.gain) + (r.gain === 1 ? ' Dienstjahr. ' : ' Dienstjahre. ') + (r.firstVisit ? 'Neues Leitbild: +5 % Produktion für immer!' : ''), cls: 'blue' });
       AS.Main.save();
     }, true);
   }
@@ -636,7 +644,7 @@
       A.setEra(e.era);
       document.body.dataset.era = e.era;
       AS.Desk.reset();
-      if (S.maxEra === e.era && !S.flags['eraSeen' + e.era] && e.old !== undefined && D.ERAS[e.old]) { S.flags['eraSeen' + e.era] = true; A.fanfare(); eraModal(e); }
+      if (S.maxEra === e.era && !S.flags['eraSeen' + e.era] && !e.offline) { S.flags['eraSeen' + e.era] = true; A.fanfare(); eraModal(e); }
       else UI.toast({ icon: 'amt', kicker: 'Neue Epoche', title: D.ERAS[e.era].name, text: D.ERAS[e.era].place + ', ' + D.ERAS[e.era].year });
     });
     U.on('ach', (a) => { A.ach(); UI.toast({ icon: 'urkunde', kicker: 'Urkunde verliehen', title: a.name, text: a.desc + ' (+1 % Produktion)', cls: 'gold' }); news.urkunden = true; });
@@ -650,7 +658,7 @@
     U.on('upgrade', () => A.upgrade());
     U.on('para', () => A.para());
     U.on('perk', () => A.upgrade());
-    U.on('altpapier', (r) => UI.toast({ icon: 'altpapier', kicker: 'Altpapier', title: r.n + ' Dubletten entsorgt', text: '+' + f(r.gain) + ' Akten', cls: 'blue' }));
+    U.on('altpapier', (r) => UI.toast({ icon: 'altpapier', kicker: 'Altpapier', title: r.n + (r.n === 1 ? ' Dublette entsorgt' : ' Dubletten entsorgt'), text: '+' + f(r.gain) + ' Akten', cls: 'blue' }));
     U.on('projDelay', (r) => { A.wrong(); UI.toast({ icon: 'flugzeug', kicker: 'Flughafen Schilda-Süd', title: 'Eröffnung verschoben!', text: 'Grund: ' + r.reason + '. Das Geld ist trotzdem weg.', cls: 'red', ms: 7000 }); });
     U.on('projStage', (r) => { A.upgrade(); UI.toast({ icon: r.id === 'portal' ? 'knopf' : 'flugzeug', kicker: D.PROJ[r.id].name, title: 'Abschnitt abgeschlossen', text: 'Weiter mit: ' + C.projStageName(r.id) }); });
     U.on('projDone', (r) => { if (r.id === 'flughafen') { A.fanfare(); UI.toast({ icon: 'flugzeug', kicker: 'Sensation', title: 'Der Flughafen ist eröffnet!', text: 'Produktion ×1,5 in diesem Durchgang.', cls: 'gold', ms: 8000 }); } });
@@ -700,7 +708,10 @@
         break;
       }
       case 'ansage': if (!A.ansage()) UI.toast({ icon: 'telefon', title: 'Keine Sprachausgabe', text: 'Dieser Browser kann leider nicht sprechen. Bitte warten Sie trotzdem.' }); break;
-      case 'saveNow': if (AS.Main.save()) UI.toast({ icon: 'haken', title: 'Gespeichert', cls: 'green', ms: 2000 }); break;
+      case 'saveNow':
+        if (AS.Main.save()) UI.toast({ icon: 'haken', title: 'Gespeichert', cls: 'green', ms: 2000 });
+        else UI.toast({ icon: 'widerspruch', title: 'Nicht gespeichert', text: C.readOnly ? (C.futureLock ? 'Das Speichern ist gesperrt, weil ein Spielstand aus einer neueren Version vorliegt.' : 'In einem anderen Tab wird gespielt. Übernimm das Spiel hier, um zu speichern.') : 'Der Browser-Speicher ist nicht verfügbar.', cls: 'red', ms: 6000 });
+        break;
       case 'export': {
         const s = C.exportStr();
         const md = UI.modal('<h2>Spielstand exportieren</h2><p class="small">Kopiere diesen Text und bewahre ihn gut auf. Auf einem anderen Gerät kannst du ihn unter „Importieren“ einfügen.</p><textarea class="save-box" readonly>' + esc(s) + '</textarea><div class="modal-actions"><button class="btn" type="button" data-close>Schließen</button><button class="btn blue" type="button" data-copy autofocus>Kopieren</button></div>');
@@ -736,7 +747,7 @@
       }
       case 'restore': UI.confirm('Sicherungskopie wiederherstellen', '<p>Der aktuelle Spielstand wird durch die Sicherungskopie ersetzt.</p>', 'Wiederherstellen', () => { if (C.restoreBackup(el.dataset.key)) { AS.Main.afterLoad(); UI.toast({ icon: 'haken', title: 'Wiederhergestellt', cls: 'green' }); } }); break;
       case 'reset': {
-        const md = UI.modal('<h2>Alles zurücksetzen?</h2><p>Der gesamte Fortschritt geht verloren – inklusive Dienstjahren, Laufbahn, Formularen und Urkunden. Tipp: Exportiere vorher deinen Spielstand.</p><p class="small">Zur Bestätigung bitte <b>LÖSCHEN</b> eintippen:</p><input class="save-box" style="min-height:0" id="resetIn" autocomplete="off" aria-label="Bestätigung"><div class="modal-actions"><button class="btn" type="button" data-close>Abbrechen</button><button class="btn primary" type="button" data-reset disabled>Endgültig zurücksetzen</button></div>');
+        const md = UI.modal('<h2>Alles zurücksetzen?</h2><p>Der gesamte Fortschritt geht verloren – inklusive Dienstjahren, Laufbahn, Formularen und Urkunden. Tipp: Exportiere vorher deinen Spielstand.</p>' + (C.futureLock ? '<p style="color:var(--red)"><b>Achtung:</b> Im Browser liegt ein Spielstand aus einer neueren Version. Er würde dabei ebenfalls überschrieben.</p>' : '') + '<p class="small">Zur Bestätigung bitte <b>LÖSCHEN</b> eintippen:</p><input class="save-box" style="min-height:0" id="resetIn" autocomplete="off" aria-label="Bestätigung"><div class="modal-actions"><button class="btn" type="button" data-close>Abbrechen</button><button class="btn primary" type="button" data-reset disabled>Endgültig zurücksetzen</button></div>');
         const inp = md.el.querySelector('#resetIn'), btn = md.el.querySelector('[data-reset]');
         inp.addEventListener('input', () => { btn.disabled = inp.value.trim().toUpperCase() !== 'LÖSCHEN'; });
         btn.addEventListener('click', () => { md.close(); C.hardReset(); AS.Main.afterLoad(); });

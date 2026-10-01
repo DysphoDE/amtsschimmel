@@ -50,7 +50,7 @@
     el.innerHTML = docHTML(d);
     el.dataset.no = d.no;
     slot.appendChild(el);
-    if (enter) requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('enter')));
+    if (enter) { requestAnimationFrame(() => requestAnimationFrame(() => el.classList.remove('enter'))); setTimeout(() => el.classList.remove('enter'), 60); }
     docEl = el; curNo = d.no;
     updateDocState();
     return el;
@@ -233,7 +233,7 @@
     if (which === 'in') {
       const n = S.korb.pending.length;
       $('trayInCount').textContent = n ? n : '';
-      $('trayIn').title = n ? n + ' Widersprüche warten im Eingang' : 'Eingang';
+      $('trayIn').title = n ? (n === 1 ? 'Ein Widerspruch wartet' : n + ' Widersprüche warten') + ' im Eingang' : 'Eingang';
     } else {
       const n = S.run.docs;
       $('trayOutCount').textContent = n ? U.fmt(n) : '';

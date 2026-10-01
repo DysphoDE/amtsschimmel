@@ -334,7 +334,8 @@ test('Eingangsstempel-Verbesserungen wirken auch im Spätspiel', () => {
   C.recalc();
   const v0 = C.M.clickVal;
   S.ups.st1 = true; C.recalc();
-  assert.ok(C.M.clickVal > v0 * 1.9, 'Stempelkissen ×2 wirkt');
+  assert.ok(C.M.clickVal > v0 * 1.49, 'Stempelkissen ×1,5 wirkt');
+  assert.ok(Math.abs(C.M.stampBase / C.M.clickVal - C.CONST.RESSORT_FACTOR * C.M.F.stampX) < 1e-9, 'Ressortstempel ist ein Vielfaches');
 });
 test('Volle Widerspruchs-Warteschlange: Akte bleibt liegen', () => {
   C.init();
