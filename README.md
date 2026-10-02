@@ -4,6 +4,8 @@ Ein Idle-/Clicker-Spiel durch 4000 Jahre Verwaltungsgeschichte. Es beginnt mit d
 
 ## Spielen
 
+**Online:** https://dysphode.github.io/amtsschimmel/ – funktioniert auf PC und Handy und lässt sich als App installieren.
+
 - **Einfach:** `dist/amtsschimmel.html` doppelklicken. Das ist eine einzige Datei, es muss nichts installiert werden.
 - **Aus dem Quellcode:** `index.html` direkt öffnen. Das funktioniert auch über `file://`, weil das Spiel keine ES-Module verwendet. Alternativ einen statischen Server starten (`python -m http.server 8080`) und `http://localhost:8080` öffnen.
 - **Handy:** Die Seite über einen Webserver ausliefern und „Zum Startbildschirm hinzufügen“ wählen. Das Spiel ist eine PWA mit Service Worker und läuft dann im Vollbild, auch offline.
